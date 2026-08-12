@@ -4,6 +4,7 @@ import sys
 import math
 
 from gladlang.core.errors import RTError
+from gladlang.core.util.settings import Settings
 from gladlang.runtime.rt_result import RTResult
 from gladlang.values.functions.base_function import BaseFunction
 from gladlang.values.functions.bound_method import BoundMethod
@@ -107,6 +108,16 @@ class BuiltInFunction(BaseFunction):
                         self.pos_start,
                         self.pos_end,
                         f"Cannot convert '{arg.value}' to INT",
+                        ctx,
+                    )
+                )
+
+            if val.bit_length() > Settings.MAX_INT_BITS:
+                return res.failure(
+                    RTError(
+                        self.pos_start,
+                        self.pos_end,
+                        f"INT: result too large (exceeds integer size limit)",
                         ctx,
                     )
                 )

@@ -1,6 +1,7 @@
 """Visitors for class definitions and MRO computation."""
 
 from gladlang.core.errors import RTError
+from gladlang.core.util.settings import Settings
 from gladlang.runtime.rt_result import RTResult
 from gladlang.runtime.context import Context
 from gladlang.runtime.symbol_table import SymbolTable
@@ -57,6 +58,17 @@ class InterpreterClasses:
                     )
 
                 superclasses.append(superclass)
+
+        for superclass in superclasses:
+            if len(superclass.mro) >= Settings.MAX_INHERITANCE_DEPTH:
+                return res.failure(
+                    RTError(
+                        node.pos_start,
+                        node.pos_end,
+                        f"Inheritance chain too deep (exceeds limit of {Settings.MAX_INHERITANCE_DEPTH})",
+                        context,
+                    )
+                )
 
         static_table = SymbolTable(parent=context.symbol_table)
         class_value = Class(class_name, superclasses, {}, static_table)

@@ -62,16 +62,11 @@ class Super(Value):
                 if visibility == "PROTECTED":
                     allowed = False
                     if context and context.active_class:
-                        if defining_class in context.active_class.mro:
+                        if (
+                            defining_class in context.active_class.mro
+                            or context.active_class in defining_class.mro
+                        ):
                             allowed = True
-                        elif not allowed:
-                            inst = context.symbol_table.get("THIS") if context else None
-                            if (
-                                inst
-                                and isinstance(inst, Instance)
-                                and context.active_class in inst.class_ref.mro
-                            ):
-                                allowed = True
 
                     if not allowed:
                         return None, RTError(
@@ -148,20 +143,11 @@ class Super(Value):
                 if visibility == "PROTECTED":
                     allowed = False
                     if self.context and self.context.active_class:
-                        if defining_class in self.context.active_class.mro:
+                        if (
+                            defining_class in self.context.active_class.mro
+                            or self.context.active_class in defining_class.mro
+                        ):
                             allowed = True
-                        elif not allowed:
-                            inst = (
-                                self.context.symbol_table.get("THIS")
-                                if self.context
-                                else None
-                            )
-                            if (
-                                inst
-                                and isinstance(inst, Instance)
-                                and self.context.active_class in inst.class_ref.mro
-                            ):
-                                allowed = True
 
                     if not allowed:
                         return res.failure(

@@ -39,7 +39,7 @@ class BaseFunction(Value):
         return new_context
 
     def get_comparison_eq(self, other, visited=None):
-        if hasattr(other, "_is_null") and other._is_null:
+        if hasattr(other, "_is_null"):
             return Number(0).set_context(self.context), None
 
         if isinstance(other, BaseFunction):
@@ -48,7 +48,7 @@ class BaseFunction(Value):
         return None, self.illegal_operation(other)
 
     def get_comparison_ne(self, other):
-        if hasattr(other, "_is_null") and other._is_null:
+        if hasattr(other, "_is_null"):
             return Number(1).set_context(self.context), None
 
         if isinstance(other, BaseFunction):

@@ -96,24 +96,27 @@ class Class(BaseFunction):
             visibility = "PUBLIC"
             as_final = True
 
-        existing = self.static_symbol_table.get(name)
-        if existing is not None:
-            if name in self.static_symbol_table.finals:
+        is_declaration = visibility is not None or as_final
+
+        defining_cls = None
+        for cls in self.mro:
+            if cls.static_symbol_table.get(name) is not None:
+                defining_cls = cls
+                break
+
+        if is_declaration:
+            if (
+                defining_cls is not None
+                and defining_cls is not self
+                and name in defining_cls.static_symbol_table.finals
+            ):
                 return None, RTError(
                     name_tok.pos_start,
                     name_tok.pos_end,
-                    f"Cannot reassign static constant '{name}'",
+                    f"Cannot shadow static constant '{name}' declared in '{defining_cls.name}'",
                     context,
                 )
 
-            err = self.static_symbol_table.update(name, value)
-            if err:
-                return None, RTError(name_tok.pos_start, name_tok.pos_end, err, context)
-
-            self._method_cache.clear()
-
-            return value, None
-        else:
             self.static_symbol_table.set(
                 name,
                 value,
@@ -123,6 +126,34 @@ class Class(BaseFunction):
             )
             self._method_cache.clear()
             return value, None
+
+        target_cls = defining_cls if defining_cls is not None else self
+
+        if name in target_cls.static_symbol_table.finals:
+            return None, RTError(
+                name_tok.pos_start,
+                name_tok.pos_end,
+                f"Cannot reassign static constant '{name}'",
+                context,
+            )
+
+        if defining_cls is not None:
+            err = target_cls.static_symbol_table.update(name, value)
+        else:
+            err = target_cls.static_symbol_table.set(
+                name,
+                value,
+                visibility=(visibility or "PUBLIC"),
+                as_final=as_final,
+                defining_class=self,
+            )
+
+        if err:
+            return None, RTError(name_tok.pos_start, name_tok.pos_end, err, context)
+
+        target_cls._method_cache.clear()
+
+        return value, None
 
     def get_attr(self, name_tok, context=None, allow_instance=False):
         method_name = name_tok.value
@@ -159,19 +190,11 @@ class Class(BaseFunction):
                 elif vis == "PROTECTED":
                     allowed = False
                     if context and context.active_class:
-                        if def_cls in context.active_class.mro:
+                        if (
+                            def_cls in context.active_class.mro
+                            or context.active_class in def_cls.mro
+                        ):
                             allowed = True
-                        elif not allowed:
-                            from gladlang.values.classes.instance import Instance
-
-                            inst = context.symbol_table.get("THIS") if context else None
-
-                            if (
-                                inst
-                                and isinstance(inst, Instance)
-                                and context.active_class in inst.class_ref.mro
-                            ):
-                                allowed = True
 
                     if not allowed:
                         msg = (
@@ -215,19 +238,11 @@ class Class(BaseFunction):
                 if visibility == "PROTECTED":
                     allowed = False
                     if context and context.active_class:
-                        if defining_class in context.active_class.mro:
+                        if (
+                            defining_class in context.active_class.mro
+                            or context.active_class in defining_class.mro
+                        ):
                             allowed = True
-                        elif not allowed:
-                            from gladlang.values.classes.instance import Instance
-
-                            inst = context.symbol_table.get("THIS") if context else None
-
-                            if (
-                                inst
-                                and isinstance(inst, Instance)
-                                and context.active_class in inst.class_ref.mro
-                            ):
-                                allowed = True
 
                     if not allowed:
                         return None, RTError(
@@ -262,19 +277,11 @@ class Class(BaseFunction):
                 if visibility == "PROTECTED":
                     allowed = False
                     if context and context.active_class:
-                        if defining_class in context.active_class.mro:
+                        if (
+                            defining_class in context.active_class.mro
+                            or context.active_class in defining_class.mro
+                        ):
                             allowed = True
-                        elif not allowed:
-                            from gladlang.values.classes.instance import Instance
-
-                            inst = context.symbol_table.get("THIS") if context else None
-
-                            if (
-                                inst
-                                and isinstance(inst, Instance)
-                                and context.active_class in inst.class_ref.mro
-                            ):
-                                allowed = True
 
                     if not allowed:
                         return None, RTError(
@@ -326,6 +333,14 @@ class Class(BaseFunction):
                 )
 
                 return method.copy(), None
+
+        if allow_instance:
+            return None, RTError(
+                name_tok.pos_start,
+                name_tok.pos_end,
+                f"Instance of '{self.name}' has no attribute '{method_name}'",
+                context,
+            )
 
         return None, RTError(
             name_tok.pos_start,

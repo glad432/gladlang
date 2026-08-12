@@ -57,6 +57,28 @@ class EnumMember(Value):
 
         return Number(0).set_context(self.context), None
 
+    def get_comparison_instanceof(self, other):
+        from gladlang.values.classes.type_ import Type
+        from gladlang.values.classes.class_ import Class
+
+        if isinstance(other, Type):
+            if other.name in ("Enum", "Object"):
+                return Number.true.copy(), None
+
+            return Number.false.copy(), None
+
+        if isinstance(other, Class):
+            return Number.false.copy(), None
+
+        from gladlang.core.errors import RTError
+
+        return None, RTError(
+            self.pos_start,
+            self.pos_end,
+            "Right operand of INSTANCEOF must be a Class or Type",
+            self.context,
+        )
+
     def copy(self):
         c = EnumMember(self.enum_name, self.member_name, self.value)
 

@@ -275,7 +275,24 @@ class Dict(Value):
             else:
                 val_str = repr(value)
 
-            key_str = f'"{key}"' if isinstance(key, str) else repr(key)
+            if (
+                isinstance(key, tuple)
+                and len(key) == 2
+                and key[0]
+                in (
+                    "__null__",
+                    "__false__",
+                )
+            ):
+                if key[0] == "__null__":
+                    key_str = "null"
+                else:
+                    key_str = "true" if key[1] else "false"
+            elif isinstance(key, str):
+                key_str = f'"{key}"'
+            else:
+                key_str = repr(key)
+
             kv_strings.append(f"{key_str}: {val_str}")
 
         s = f"{{{', '.join(kv_strings)}}}"

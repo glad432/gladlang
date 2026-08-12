@@ -16,7 +16,7 @@ This is the full overview of the GladLang language, its features, and how to run
     - [1. Installation](#1-installation)
     - [2. Usage](#2-usage)
     - [3. Running Without Installation (Source)](#3-running-without-installation-source)
-    - [4. Building the Executable](#4-building-the-executable)
+    - [4. Download](#4-download)
 - [Language Tour (Syntax Reference)](#language-tour-syntax-reference)
     - [1. Comments](#1-comments)
     - [2. Variables and Data Types](#2-variables-and-data-types)
@@ -185,23 +185,9 @@ python run.py "tests/test.glad"
 
 ---
 
-### 4. Building the Executable
+### 4. Download
 
-You can build a **standalone executable** (no Python required) using **PyInstaller**:
-
-```bash
-pip install pyinstaller
-pyinstaller run.py --paths src -F --name gladlang --icon=favicon.ico
-
-```
-
-This will create a single-file executable at `dist/gladlang` (or `gladlang.exe` on Windows).
-
-**Adding to PATH (Optional):**
-To run the standalone executable from anywhere:
-
-* **Windows:** Move it to a folder and add that folder to your System PATH variables.
-* **Mac/Linux:** Move it to `/usr/local/bin`: `sudo mv dist/gladlang /usr/local/bin/`
+Pre-built binaries for Windows, Linux, and macOS are available on the [GitHub Releases](https://github.com/gladw-in/gladlang/releases/latest) page.
 
 -----
 
@@ -409,7 +395,7 @@ PRINTLN 10 % 3      # Modulo: 1
 # Standard precedence rules apply
 PRINTLN 2 + 3 * 4   # 14
 PRINTLN 1 + 2 * 3   # 7
-PRINTLN (1 + 2) * 3 # 9
+PRINTLN ((1 + 2) * 3) # 9
 
 ```
 
@@ -961,9 +947,14 @@ FINALLY
 ENDTRY
 
 # Manually throwing errors
-IF age < 0 THEN
-    THROW "Age cannot be negative!"
-ENDIF
+TRY
+    LET age = -1
+    IF age < 0 THEN
+        THROW "Age cannot be negative"
+    ENDIF
+CATCH e
+    PRINTLN e   # prints only "Age cannot be negative"
+ENDTRY
 
 ```
 

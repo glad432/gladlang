@@ -63,10 +63,12 @@ from gladlang.parser.ast import (
     GetAttrNode,
     SliceAccessNode,
     ListAccessNode,
+    ListNode,
     PostOpNode,
     VarAssignNode,
     SetAttrNode,
     ListSetNode,
+    MultiVarAssignNode,
 )
 from gladlang.lexer.token import Token
 from gladlang.parser.parse_result import ParseResult
@@ -144,8 +146,8 @@ class ParserExpressions:
             if res.error:
                 return res
 
+            bin_op_type = None
             if op_tok.type != GL_EQ:
-                bin_op_type = None
                 if op_tok.type == GL_PLUSEQ:
                     bin_op_type = GL_PLUS
                 elif op_tok.type == GL_MINUSEQ:
@@ -171,20 +173,35 @@ class ParserExpressions:
                 elif op_tok.type == GL_RSHIFTEQ:
                     bin_op_type = GL_RSHIFT
 
-                expr = BinOpNode(
-                    node, Token(bin_op_type, pos_start=op_tok.pos_start), expr
-                )
-
             if isinstance(node, VarAccessNode):
+                combined_expr = expr
+                if bin_op_type is not None:
+                    combined_expr = BinOpNode(
+                        node, Token(bin_op_type, pos_start=op_tok.pos_start), expr
+                    )
                 return res.success(
-                    VarAssignNode(node.var_name_tok, expr, is_declaration=False)
+                    VarAssignNode(
+                        node.var_name_tok, combined_expr, is_declaration=False
+                    )
                 )
             elif isinstance(node, GetAttrNode):
                 return res.success(
-                    SetAttrNode(node.object_node, node.attr_name_tok, expr)
+                    SetAttrNode(node.object_node, node.attr_name_tok, expr, bin_op_type)
                 )
             elif isinstance(node, ListAccessNode):
-                return res.success(ListSetNode(node.list_node, node.index_node, expr))
+                return res.success(
+                    ListSetNode(node.list_node, node.index_node, expr, bin_op_type)
+                )
+            elif (
+                isinstance(node, ListNode)
+                and op_tok.type == GL_EQ
+                and node.element_nodes
+                and all(isinstance(e, VarAccessNode) for e in node.element_nodes)
+            ):
+                var_name_toks = [e.var_name_tok for e in node.element_nodes]
+                return res.success(
+                    MultiVarAssignNode(var_name_toks, expr, is_declaration=False)
+                )
             else:
                 return res.failure(
                     InvalidSyntaxError(
@@ -290,6 +307,18 @@ class ParserExpressions:
             return res
 
         while True:
+            prev_tok = self.tokens[self.tok_idx - 1]
+            if (
+                self.current_tok.pos_start.ln != prev_tok.pos_end.ln
+                and self.current_tok.type
+                in (
+                    GL_LPAREN,
+                    GL_DOT,
+                    GL_LSQUARE,
+                )
+            ):
+                break
+
             if self.current_tok.type == GL_LPAREN:
                 res.register_advancement()
                 self.advance()
@@ -391,7 +420,11 @@ class ParserExpressions:
             else:
                 break
 
-        if self.current_tok.type in (GL_PLUSPLUS, GL_MINUSMINUS):
+        prev_tok = self.tokens[self.tok_idx - 1]
+        if (
+            self.current_tok.type in (GL_PLUSPLUS, GL_MINUSMINUS)
+            and self.current_tok.pos_start.ln == prev_tok.pos_end.ln
+        ):
             if not isinstance(atom, (VarAccessNode, GetAttrNode, ListAccessNode)):
                 return res.failure(
                     InvalidSyntaxError(

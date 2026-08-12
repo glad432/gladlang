@@ -161,6 +161,21 @@ class Function(BaseFunction):
                 final_result = ret_val
                 break
 
+            if value_result.should_break or value_result.should_continue:
+                self._call_count = 0
+
+                if current_func is not self:
+                    current_func._call_count = 0
+
+                return value_result.failure(
+                    RTError(
+                        current_func.pos_start,
+                        current_func.pos_end,
+                        "Internal error: BREAK/CONTINUE escaped a function body",
+                        new_context,
+                    )
+                )
+
             final_result = value_result.value or Number.null.copy()
             break
 

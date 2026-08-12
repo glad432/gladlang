@@ -14,7 +14,6 @@ from gladlang.core.constants import (
     GL_GTE,
 )
 from gladlang.core.errors import RTError
-from gladlang.core.util.final_helpers import is_final_anywhere
 from gladlang.runtime.rt_result import RTResult
 from gladlang.values.primitives.number import Number
 from gladlang.values.classes.class_ import Class
@@ -49,7 +48,10 @@ class InterpreterExpressions:
             if error:
                 return res.failure(error)
 
-            return res.success(result.set_pos(node.pos_start, node.pos_end))
+            normalized = (Number.true if result.is_true() else Number.false).copy()
+            return res.success(
+                normalized.set_pos(node.pos_start, node.pos_end).set_context(context)
+            )
 
         elif node.op_tok.matches(GL_KEYWORD, "OR"):
             if left.is_true():
@@ -67,7 +69,10 @@ class InterpreterExpressions:
             if error:
                 return res.failure(error)
 
-            return res.success(result.set_pos(node.pos_start, node.pos_end))
+            normalized = (Number.true if result.is_true() else Number.false).copy()
+            return res.success(
+                normalized.set_pos(node.pos_start, node.pos_end).set_context(context)
+            )
 
         right = res.register(self.visit(node.right_node, context))
         if res.error:
@@ -115,16 +120,6 @@ class InterpreterExpressions:
             target_node = node.node
             if isinstance(target_node, VarAccessNode):
                 var_name = target_node.var_name_tok.value
-                if is_final_anywhere(context.symbol_table, var_name):
-                    return res.failure(
-                        RTError(
-                            target_node.pos_start,
-                            target_node.pos_end,
-                            f"Cannot increment/decrement constant '{var_name}'",
-                            context,
-                        )
-                    )
-
                 value = context.symbol_table.get(var_name)
                 if value is None:
                     return res.failure(
@@ -168,7 +163,7 @@ class InterpreterExpressions:
                     )
                 )
 
-            if not isinstance(value, Number):
+            if not isinstance(value, Number) or hasattr(value, "_is_null"):
                 return res.failure(
                     RTError(
                         target_node.pos_start,
@@ -235,6 +230,8 @@ class InterpreterExpressions:
                 error.pos_start = node.pos_start
                 error.pos_end = node.pos_end
                 error.context = context
+            else:
+                number = (Number.true if number.is_true() else Number.false).copy()
 
         elif node.op_tok.type == GL_BIT_NOT:
             number, error = number.bitted_not()
@@ -311,16 +308,6 @@ class InterpreterExpressions:
         target_node = node.node
         if isinstance(target_node, VarAccessNode):
             var_name = target_node.var_name_tok.value
-            if is_final_anywhere(context.symbol_table, var_name):
-                return res.failure(
-                    RTError(
-                        target_node.pos_start,
-                        target_node.pos_end,
-                        f"Cannot increment/decrement constant '{var_name}'",
-                        context,
-                    )
-                )
-
             old_value = context.symbol_table.get(var_name)
             if old_value is None:
                 return res.failure(
@@ -364,7 +351,7 @@ class InterpreterExpressions:
                 )
             )
 
-        if not isinstance(old_value, Number):
+        if not isinstance(old_value, Number) or hasattr(old_value, "_is_null"):
             return res.failure(
                 RTError(
                     target_node.pos_start,

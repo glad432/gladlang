@@ -25,6 +25,10 @@ class ParserOperators:
             self.current_tok.type in ops
             or (self.current_tok.type, self.current_tok.value) in ops
         ):
+            prev_tok = self.tokens[self.tok_idx - 1]
+            if self.current_tok.pos_start.ln != prev_tok.pos_end.ln:
+                break
+
             op_tok = self.current_tok
             res.register_advancement()
             self.advance()

@@ -334,10 +334,10 @@ ENDDEF
 TRY
   _b10_accessor()
 CATCH e
-  IF e == "Class '_B10' has no member 'nonexistent_member'" THEN
-    pass("Test 10: no-member error has non-empty message")
+  IF e == "Instance of '_B10' has no attribute 'nonexistent_member'" THEN
+      pass("Test 10: no-member error has non-empty message")
   ELSE
-    fail("Test 10", "wrong message: " + e)
+      fail("Test 10", "wrong message: " + e)
   ENDIF
 ENDTRY
 

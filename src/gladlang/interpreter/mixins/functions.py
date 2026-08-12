@@ -1,7 +1,6 @@
 """Visitor for function definitions."""
 
 from gladlang.core.errors import RTError
-from gladlang.core.util.final_helpers import is_final_anywhere
 from gladlang.runtime.rt_result import RTResult
 from gladlang.values.functions.function import Function
 from gladlang.values.functions.function_group import FunctionGroup
@@ -25,7 +24,7 @@ class InterpreterFunctions:
         )
 
         if func_name:
-            if is_final_anywhere(context.symbol_table, func_name):
+            if func_name in context.symbol_table.finals:
                 return res.failure(
                     RTError(
                         node.pos_start,

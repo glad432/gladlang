@@ -27,18 +27,18 @@ DEF assert_eq(expected, actual, test_name)
 ENDDEF
 
 DEF assert_true(actual, test_name)
-    IF actual == TRUE THEN
+    IF actual THEN
         pass(test_name)
     ELSE
-        fail(test_name, "Expected TRUE, got " + STR(actual))
+        fail(test_name, "Expected truthy, got " + STR(actual))
     ENDIF
 ENDDEF
 
 DEF assert_false(actual, test_name)
-    IF actual == FALSE THEN
+    IF NOT actual THEN
         pass(test_name)
     ELSE
-        fail(test_name, "Expected FALSE, got " + STR(actual))
+        fail(test_name, "Expected falsy, got " + STR(actual))
     ENDIF
 ENDDEF
 
@@ -73,10 +73,10 @@ assert_eq(1, c >= a, "10 >= 5")
 assert_eq(0, a >= c, "5 >= 10")
 
 # Chained comparisons
-assert_eq(1, 1 < 2 < 3, "1 < 2 < 3")
-assert_eq(0, 3 < 2 < 1, "3 < 2 < 1")
-assert_eq(1, 5 >= 5 >= 3, "5 >= 5 >= 3")
-assert_eq(0, 5 > 5 > 3, "5 > 5 > 3")
+assert_true(1 < 2 < 3, "1 < 2 < 3")
+assert_false(3 < 2 < 1, "3 < 2 < 1")
+assert_true(5 >= 5 >= 3, "5 >= 5 >= 3")
+assert_false(5 > 5 > 3, "5 > 5 > 3")
 
 # Float comparisons
 LET f1 = 1.5

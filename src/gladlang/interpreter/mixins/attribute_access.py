@@ -26,9 +26,23 @@ class InterpreterAttributeAccess:
         if res.error:
             return res
 
-        value = res.register(self.visit(node.value_node, context))
-        if res.error:
-            return res
+        if node.compound_op is not None:
+            old_value, error = obj.get_attr(node.attr_name_tok, context)
+            if error:
+                return res.failure(error)
+
+            rhs_value = res.register(self.visit(node.value_node, context))
+            if res.error:
+                return res
+
+            op = self._binop_dispatch.get(node.compound_op)
+            value, error = op(old_value, rhs_value)
+            if error:
+                return res.failure(error)
+        else:
+            value = res.register(self.visit(node.value_node, context))
+            if res.error:
+                return res
 
         new_value, error = obj.set_attr(node.attr_name_tok, value, context)
         if error:
@@ -66,9 +80,25 @@ class InterpreterAttributeAccess:
         if res.error:
             return res
 
-        value_to_set = res.register(self.visit(node.value_node, context))
-        if res.error:
-            return res
+        if node.compound_op is not None:
+            old_value, error = list_val.get_element_at(index_val)
+            if error:
+                error.pos_start = node.pos_start
+                error.pos_end = node.pos_end
+                return res.failure(error)
+
+            rhs_value = res.register(self.visit(node.value_node, context))
+            if res.error:
+                return res
+
+            op = self._binop_dispatch.get(node.compound_op)
+            value_to_set, error = op(old_value, rhs_value)
+            if error:
+                return res.failure(error)
+        else:
+            value_to_set = res.register(self.visit(node.value_node, context))
+            if res.error:
+                return res
 
         new_value, error = list_val.set_element_at(index_val, value_to_set)
         if error:

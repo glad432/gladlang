@@ -1,7 +1,6 @@
 """Visitors for variable access, assignment, destructuring, and visibility."""
 
 from gladlang.core.errors import RTError
-from gladlang.core.util.final_helpers import is_final_anywhere
 from gladlang.runtime.rt_result import RTResult
 from gladlang.values.primitives.list import List
 from gladlang.values.classes.super_ import Super
@@ -103,15 +102,6 @@ class InterpreterVariables:
             return res
 
         visibility = getattr(node, "target_visibility", "PUBLIC")
-        if is_final_anywhere(context.symbol_table, var_name):
-            return res.failure(
-                RTError(
-                    node.var_name_tok.pos_start,
-                    node.var_name_tok.pos_end,
-                    f"Cannot reassign constant '{var_name}'",
-                    context,
-                )
-            )
 
         if node.is_declaration:
             err = context.symbol_table.set_if_absent(
@@ -156,15 +146,6 @@ class InterpreterVariables:
 
         for i, var_name_tok in enumerate(node.var_name_toks):
             var_name = var_name_tok.value
-            if is_final_anywhere(context.symbol_table, var_name):
-                return res.failure(
-                    RTError(
-                        var_name_tok.pos_start,
-                        var_name_tok.pos_end,
-                        f"Cannot reassign constant '{var_name}'",
-                        context,
-                    )
-                )
 
             if node.is_declaration:
                 err = context.symbol_table.set_if_absent(var_name, list_val.elements[i])
@@ -175,7 +156,13 @@ class InterpreterVariables:
                         )
                     )
             else:
-                context.symbol_table.set(var_name, list_val.elements[i])
+                err = context.symbol_table.update(var_name, list_val.elements[i])
+                if err:
+                    return res.failure(
+                        RTError(
+                            var_name_tok.pos_start, var_name_tok.pos_end, err, context
+                        )
+                    )
 
         return res.success(list_val)
 

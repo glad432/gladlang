@@ -20,4 +20,4 @@ class Context:
         self.symbol_table = None
         self.depth = (parent.depth + 1) if parent else 0
         self.active_class = parent.active_class if parent else None
-        self.is_static = False
+        self.is_static = parent.is_static if parent else False

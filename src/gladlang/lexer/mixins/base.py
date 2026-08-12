@@ -2,6 +2,7 @@
 
 from gladlang.core.constants import DIGITS
 from gladlang.core.errors import Position, IllegalCharError
+from gladlang.core.util.settings import Settings
 from gladlang.lexer.token import Token
 from gladlang.core.constants.token_types import (
     GL_PLUS,
@@ -88,6 +89,13 @@ class LexerBase:
 
         tokens = []
         while self.current_char is not None:
+            if len(tokens) > Settings.MAX_TOKENS:
+                return [], IllegalCharError(
+                    self.pos,
+                    self.pos,
+                    f"Source produces too many tokens (exceeds limit of {Settings.MAX_TOKENS:,})",
+                )
+
             if self.current_char in " \t\r\n":
                 self.advance()
             elif self.current_char == "#":

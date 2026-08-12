@@ -169,6 +169,10 @@ class ParserCollections:
         while self.current_tok.type == GL_COMMA:
             res.register_advancement()
             self.advance()
+
+            if self.current_tok.type == GL_RSQUARE:
+                break
+
             element_nodes.append(res.register(self.expr()))
             if res.error:
                 return res

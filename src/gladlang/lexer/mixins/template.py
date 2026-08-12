@@ -38,7 +38,14 @@ class LexerTemplate:
         ):
             if not escape_character and self.current_char == "$" and self.peek() == "{":
                 string_part = "".join(chars)
-                tokens.append(Token(GL_STRING, string_part, pos_start=pos_start))
+                tokens.append(
+                    Token(
+                        GL_STRING,
+                        string_part,
+                        pos_start=pos_start,
+                        pos_end=self.pos.copy(),
+                    )
+                )
                 chars = []
 
                 tokens.append(Token(GL_PLUS, pos_start=self.pos))
@@ -155,7 +162,9 @@ class LexerTemplate:
 
         string_part = "".join(chars)
 
-        tokens.append(Token(GL_STRING, string_part, pos_start=pos_start))
+        tokens.append(
+            Token(GL_STRING, string_part, pos_start=pos_start, pos_end=self.pos.copy())
+        )
         tokens.append(Token(GL_RPAREN, pos_start=self.pos))
 
         self.advance()

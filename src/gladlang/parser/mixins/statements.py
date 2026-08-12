@@ -446,8 +446,8 @@ class ParserStatements:
                 self.current_tok.type == GL_KEYWORD
                 and self.current_tok.value in END_KEYWORDS
             ):
-                null_tok = Token(GL_INT, 0, pos_start, pos_start)
-                null_node = NumberNode(null_tok)
+                null_tok = Token(GL_IDENTIFIER, "NULL", pos_start, pos_start)
+                null_node = VarAccessNode(null_tok)
                 return res.success(ReturnNode(null_node, pos_start, pos_start))
 
             expr = res.register(self.expr())

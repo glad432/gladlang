@@ -13,12 +13,21 @@ class RTError(Error):
         self.context = context
         self.thrown_value = thrown_value
 
+    @staticmethod
+    def _sanitize_for_display(text):
+        return "".join(
+            ch if ch == "\t" or ch.isprintable() else f"\\x{ord(ch):02x}" for ch in text
+        )
+
     def as_string(self):
         result = self.generate_traceback()
-        result += f"{self.error_name}: {self.details}"
+        result += f"{self.error_name}: {self._sanitize_for_display(self.details)}"
 
         if self.thrown_value is not None:
-            result += f"\nThrown value: {self.thrown_value}"
+            result += (
+                f"\nThrown value: "
+                f"{self._sanitize_for_display(str(self.thrown_value))}"
+            )
 
         return result
 

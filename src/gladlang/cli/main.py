@@ -36,6 +36,33 @@ def main():
         target=set_terminal_title, args=(Settings.TITLE,), daemon=True
     ).start()
 
+    if len(sys.argv) == 1 and not sys.stdin.isatty():
+        text = sys.stdin.read()
+
+        if len(text.encode("utf-8", errors="replace")) > Settings.MAX_SOURCE_BYTES:
+            sys.stderr.write(
+                f"Source too large ({len(text):,} chars). "
+                f"Maximum allowed: {Settings.MAX_SOURCE_BYTES:,} bytes.\n"
+            )
+            sys.exit(1)
+
+        try:
+            result, error = run(
+                "<stdin>", text, instruction_limit=Settings.MAX_INSTRUCTIONS
+            )
+
+            if error:
+                sys.stderr.write(f"{error.as_string()}\n")
+                sys.exit(1)
+        except MemoryError:
+            sys.stderr.write("System Error: Memory Limit Exceeded\n")
+            sys.exit(1)
+        except Exception as e:
+            sys.stderr.write(f"An unexpected error occurred: {e}\n")
+            sys.exit(1)
+
+        return
+
     if len(sys.argv) == 1:
         sys.stdout.write(f"Welcome to GladLang (v{Settings.VERSION})\n")
         sys.stdout.write("Type 'exit' or 'quit' to close the shell.\n")
@@ -245,12 +272,43 @@ def main():
                                     )
                                 )
 
-                                is_void_call = bool(
-                                    re.match(
-                                        r"^[A-Za-z_][A-Za-z0-9_.]*(\s*\[.+?\])*\s*\(",
-                                        sole,
-                                    )
-                                )
+                                def _is_pure_call_expression(s):
+                                    m = re.match(r"[A-Za-z_][A-Za-z0-9_]*", s)
+                                    if not m:
+                                        return False
+
+                                    i = m.end()
+                                    n = len(s)
+                                    found_call = False
+
+                                    while i < n:
+                                        ch = s[i]
+                                        if ch in "([":
+                                            close = ")" if ch == "(" else "]"
+                                            depth = 1
+                                            i += 1
+                                            while i < n and depth > 0:
+                                                if s[i] == ch:
+                                                    depth += 1
+                                                elif s[i] == close:
+                                                    depth -= 1
+                                                i += 1
+                                            if ch == "(":
+                                                found_call = True
+                                        elif ch == ".":
+                                            i += 1
+                                            m2 = re.match(
+                                                r"[A-Za-z_][A-Za-z0-9_]*", s[i:]
+                                            )
+                                            if not m2:
+                                                return False
+                                            i += m2.end()
+                                        else:
+                                            break
+
+                                    return found_call and s[i:].strip() == ""
+
+                                is_void_call = _is_pure_call_expression(sole)
 
                                 is_increment = bool(
                                     re.match(
@@ -307,79 +365,70 @@ def main():
 
                     is_file = False
                     resolved = None
-                    try:
-                        candidate = Path(arg_input)
-                        strict_path = candidate.resolve(strict=False)
 
-                        try:
-                            O_NOFOLLOW = os.O_NOFOLLOW
-                            fd = os.open(str(strict_path), os.O_RDONLY | O_NOFOLLOW)
-                        except AttributeError:
-                            fd = os.open(str(strict_path), os.O_RDONLY)
+                    looks_like_file_ref = arg_input.endswith(".glad") or os.path.exists(
+                        arg_input
+                    )
 
-                        file_size = os.fstat(fd).st_size
-                        if file_size > Settings.MAX_SOURCE_BYTES:
-                            os.close(fd)
-                            sys.stderr.write(
-                                f"File too large: '{arg_input}' ({file_size:,} bytes). "
-                                f"Maximum allowed: {Settings.MAX_SOURCE_BYTES:,} bytes.\n"
-                            )
-                            sys.exit(1)
-
-                        with os.fdopen(fd, "r", encoding="utf-8") as f:
-                            text = f.read()
-
-                        is_file = True
-                        resolved = candidate.resolve()
-                    except (OSError, PermissionError) as e:
-                        sys.stderr.write(f"Error accessing file: {e}\n")
+                    if looks_like_file_ref and Path(arg_input).is_symlink():
+                        sys.stderr.write(
+                            f"Access denied: '{arg_input}' is a symbolic link\n"
+                        )
                         sys.exit(1)
 
+                    if looks_like_file_ref:
+                        try:
+                            candidate = Path(arg_input)
+                            strict_path = candidate.resolve(strict=False)
+
+                            try:
+                                O_NOFOLLOW = os.O_NOFOLLOW
+                                fd = os.open(str(strict_path), os.O_RDONLY | O_NOFOLLOW)
+                            except AttributeError:
+                                fd = os.open(str(strict_path), os.O_RDONLY)
+
+                            file_size = os.fstat(fd).st_size
+                            if file_size > Settings.MAX_SOURCE_BYTES:
+                                os.close(fd)
+                                sys.stderr.write(
+                                    f"File too large: '{arg_input}' ({file_size:,} bytes). "
+                                    f"Maximum allowed: {Settings.MAX_SOURCE_BYTES:,} bytes.\n"
+                                )
+                                sys.exit(1)
+
+                            try:
+                                with os.fdopen(fd, "r", encoding="utf-8") as f:
+                                    text = f.read()
+                            except UnicodeDecodeError:
+                                sys.stderr.write(
+                                    f"Encoding error: '{arg_input}' is not valid UTF-8. "
+                                    "Save the file as UTF-8 and try again.\n"
+                                )
+                                sys.exit(1)
+
+                            is_file = True
+                            resolved = candidate.resolve()
+                        except (OSError, PermissionError) as e:
+                            sys.stderr.write(f"Error accessing file: {e}\n")
+                            sys.exit(1)
+
                     if is_file or arg_input.endswith(".glad"):
-                        candidate_path = Path(arg_input)
-                        if candidate_path.is_symlink():
-                            sys.stderr.write(
-                                f"Access denied: '{arg_input}' is a symbolic link\n"
-                            )
-                            sys.exit(1)
+                        source_name = str(resolved)
 
-                        path_to_read = (
-                            resolved if resolved else candidate_path.resolve()
-                        )
-
-                        if not path_to_read.suffix == ".glad" and not is_file:
-                            sys.stderr.write(
-                                f"File must have .glad extension: '{arg_input}'\n"
-                            )
-                            sys.exit(1)
-
-                        try:
-                            O_NOFOLLOW = os.O_NOFOLLOW
-                            fd = os.open(str(path_to_read), os.O_RDONLY | O_NOFOLLOW)
-                        except AttributeError:
-                            fd = os.open(str(path_to_read), os.O_RDONLY)
-
-                        file_size = os.fstat(fd).st_size
-                        if file_size > Settings.MAX_SOURCE_BYTES:
-                            os.close(fd)
-                            sys.stderr.write(
-                                f"File too large: '{arg_input}' ({file_size:,} bytes). Maximum allowed: {Settings.MAX_SOURCE_BYTES:,} bytes.\n"
-                            )
-                            sys.exit(1)
-
-                        try:
-                            with os.fdopen(fd, "r", encoding="utf-8") as f:
-                                text = f.read()
-                        except UnicodeDecodeError:
-                            sys.stderr.write(
-                                f"Encoding error: '{arg_input}' is not valid UTF-8. Save the file as UTF-8 and try again.\n"
-                            )
-                            sys.exit(1)
-
-                        source_name = str(path_to_read)
+                        source_name = str(resolved)
                     else:
                         text = arg_input
                         source_name = "<cmdline>"
+
+                        if (
+                            len(text.encode("utf-8", errors="replace"))
+                            > Settings.MAX_SOURCE_BYTES
+                        ):
+                            sys.stderr.write(
+                                f"Source too large ({len(text):,} chars). "
+                                f"Maximum allowed: {Settings.MAX_SOURCE_BYTES:,} bytes.\n"
+                            )
+                            sys.exit(1)
 
                     result, error = run(
                         source_name, text, instruction_limit=Settings.MAX_INSTRUCTIONS

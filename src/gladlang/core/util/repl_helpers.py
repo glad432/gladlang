@@ -94,6 +94,9 @@ def is_complete(text):
 
     neutral_keys = {"ELSE", "CATCH", "FINALLY"}
 
+    def _is_ident_char(ch):
+        return ch.isalnum() or ch == "_"
+
     i = 0
     n = len(stripped)
     while i < n:
@@ -130,8 +133,10 @@ def is_complete(text):
 
             matched_neutral = False
             for kw in neutral_keys:
-                if stripped.startswith(kw, i) and (
-                    i + len(kw) == n or not stripped[i + len(kw)].isalpha()
+                if (
+                    (i == 0 or not _is_ident_char(stripped[i - 1]))
+                    and stripped.startswith(kw, i)
+                    and (i + len(kw) == n or not _is_ident_char(stripped[i + len(kw)]))
                 ):
                     after = i + len(kw)
                     while after < n and stripped[after] == " ":
@@ -139,7 +144,7 @@ def is_complete(text):
                     if (
                         kw == "ELSE"
                         and stripped.startswith("IF", after)
-                        and (after + 2 == n or not stripped[after + 2].isalpha())
+                        and (after + 2 == n or not _is_ident_char(stripped[after + 2]))
                     ):
                         i = after + 2
                     else:
@@ -152,8 +157,10 @@ def is_complete(text):
 
             matched_end = False
             for kw in end_keys:
-                if stripped.startswith(kw, i) and (
-                    i + len(kw) == n or not stripped[i + len(kw)].isalpha()
+                if (
+                    (i == 0 or not _is_ident_char(stripped[i - 1]))
+                    and stripped.startswith(kw, i)
+                    and (i + len(kw) == n or not _is_ident_char(stripped[i + len(kw)]))
                 ):
                     keyword_depth -= 1
                     i += len(kw)
@@ -165,8 +172,10 @@ def is_complete(text):
 
             matched_start = False
             for kw in start_keys:
-                if stripped.startswith(kw, i) and (
-                    i + len(kw) == n or not stripped[i + len(kw)].isalpha()
+                if (
+                    (i == 0 or not _is_ident_char(stripped[i - 1]))
+                    and stripped.startswith(kw, i)
+                    and (i + len(kw) == n or not _is_ident_char(stripped[i + len(kw)]))
                 ):
                     keyword_depth += 1
                     i += len(kw)

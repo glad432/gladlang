@@ -234,7 +234,7 @@ class Number(Value):
         return Number(1 if self is other else 0).set_context(self.context), None
 
     def get_comparison_eq(self, other, visited=None):
-        if hasattr(other, "_is_null") and other._is_null:
+        if hasattr(other, "_is_null"):
             return Number(0).set_context(self.context), None
 
         if isinstance(other, Number):
@@ -246,7 +246,7 @@ class Number(Value):
         return None, self._illegal(other)
 
     def get_comparison_ne(self, other):
-        if hasattr(other, "_is_null") and other._is_null:
+        if hasattr(other, "_is_null"):
             return Number(1).set_context(self.context), None
 
         if isinstance(other, Number):

@@ -2,11 +2,23 @@
 
 from gladlang.core.constants import DIGITS
 from gladlang.core.errors import IllegalCharError, InvalidSyntaxError
+from gladlang.core.util.settings import Settings
 from gladlang.lexer.token import Token
 from gladlang.core.constants.token_types import GL_INT, GL_FLOAT
 
 
 class LexerNumbers:
+    def _checked_int_token(self, num_str, base, pos_start):
+        value = int(num_str, base)
+        if value.bit_length() > Settings.MAX_INT_BITS:
+            return None, InvalidSyntaxError(
+                pos_start,
+                self.pos,
+                "Integer literal too large (exceeds integer size limit)",
+            )
+
+        return Token(GL_INT, value, pos_start, self.pos), None
+
     def make_number(self):
         num_str = ""
         dot_count = 0
@@ -39,7 +51,7 @@ class LexerNumbers:
                         pos_start, self.pos, "Invalid hex literal"
                     )
 
-                return Token(GL_INT, int(num_str, 16), pos_start, self.pos), None
+                return self._checked_int_token(num_str, 16, pos_start)
 
             elif peek_char in ("o", "O"):
                 self.advance()
@@ -51,7 +63,7 @@ class LexerNumbers:
                         pos_start, self.pos, "Invalid octal literal"
                     )
 
-                return Token(GL_INT, int(num_str, 8), pos_start, self.pos), None
+                return self._checked_int_token(num_str, 8, pos_start)
 
             elif peek_char in ("b", "B"):
                 self.advance()
@@ -63,7 +75,7 @@ class LexerNumbers:
                         pos_start, self.pos, "Invalid binary literal"
                     )
 
-                return Token(GL_INT, int(num_str, 2), pos_start, self.pos), None
+                return self._checked_int_token(num_str, 2, pos_start)
 
         while self.current_char is not None and self.current_char in DIGITS + "._":
             if self.current_char == "_":
@@ -118,6 +130,6 @@ class LexerNumbers:
         num_str = num_str.replace("_", "")
 
         if dot_count == 0:
-            return Token(GL_INT, int(num_str), pos_start, self.pos), None
+            return self._checked_int_token(num_str, 10, pos_start)
         else:
             return Token(GL_FLOAT, float(num_str), pos_start, self.pos), None

@@ -71,10 +71,8 @@ class InterpreterLiterals:
         res = RTResult()
 
         output_list = []
-        comp_context = Context("LIST_COMPREHENSION", context, node.pos_start)
-        comp_context.symbol_table = SymbolTable(context.symbol_table)
 
-        def evaluate_loops(spec_index):
+        def evaluate_loops(spec_index, comp_context):
             if spec_index >= len(node.iteration_specs):
                 val = res.register(self.visit(node.output_expr_node, comp_context))
                 if not res.error:
@@ -96,26 +94,31 @@ class InterpreterLiterals:
                 return
 
             for element in iterator:
-                for tok in var_toks:
-                    comp_context.symbol_table.remove(tok.value)
+                iter_context = Context(
+                    "LIST_COMPREHENSION", comp_context, node.pos_start
+                )
+                iter_context.symbol_table = SymbolTable(comp_context.symbol_table)
 
-                self.unpack_and_set(var_toks, element, comp_context, res)
+                self.unpack_and_set(var_toks, element, iter_context, res)
                 if res.error:
                     return
 
                 if cond_node:
-                    cond_val = res.register(self.visit(cond_node, comp_context))
+                    cond_val = res.register(self.visit(cond_node, iter_context))
                     if res.error:
                         return
 
                     if not cond_val.is_true():
                         continue
 
-                evaluate_loops(spec_index + 1)
+                evaluate_loops(spec_index + 1, iter_context)
                 if res.error:
                     return
 
-        evaluate_loops(0)
+        base_context = Context("LIST_COMPREHENSION", context, node.pos_start)
+        base_context.symbol_table = SymbolTable(context.symbol_table)
+
+        evaluate_loops(0, base_context)
         if res.error:
             return res
 
@@ -127,10 +130,8 @@ class InterpreterLiterals:
         res = RTResult()
 
         output_dict = {}
-        comp_context = Context("DICT_COMPREHENSION", context, node.pos_start)
-        comp_context.symbol_table = SymbolTable(context.symbol_table)
 
-        def evaluate_loops(spec_index):
+        def evaluate_loops(spec_index, comp_context):
             if spec_index >= len(node.iteration_specs):
                 key_val = res.register(self.visit(node.key_expr_node, comp_context))
                 if res.error:
@@ -167,26 +168,31 @@ class InterpreterLiterals:
                 return
 
             for element in iterator:
-                for tok in var_toks:
-                    comp_context.symbol_table.remove(tok.value)
+                iter_context = Context(
+                    "DICT_COMPREHENSION", comp_context, node.pos_start
+                )
+                iter_context.symbol_table = SymbolTable(comp_context.symbol_table)
 
-                self.unpack_and_set(var_toks, element, comp_context, res)
+                self.unpack_and_set(var_toks, element, iter_context, res)
                 if res.error:
                     return
 
                 if cond_node:
-                    cond_val = res.register(self.visit(cond_node, comp_context))
+                    cond_val = res.register(self.visit(cond_node, iter_context))
                     if res.error:
                         return
 
                     if not cond_val.is_true():
                         continue
 
-                evaluate_loops(spec_index + 1)
+                evaluate_loops(spec_index + 1, iter_context)
                 if res.error:
                     return
 
-        evaluate_loops(0)
+        base_context = Context("DICT_COMPREHENSION", context, node.pos_start)
+        base_context.symbol_table = SymbolTable(context.symbol_table)
+
+        evaluate_loops(0, base_context)
         if res.error:
             return res
 

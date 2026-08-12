@@ -149,6 +149,17 @@ class BoundMethod(BaseFunction):
                 self._call_count = 0
                 return res.success(ret_val)
 
+            if value_result.should_break or value_result.should_continue:
+                self._call_count = 0
+                return value_result.failure(
+                    RTError(
+                        current_func.pos_start,
+                        current_func.pos_end,
+                        "Internal error: BREAK/CONTINUE escaped a function body",
+                        new_context,
+                    )
+                )
+
             final_val = value_result.value or Number.null.copy()
             self._call_count = 0
 

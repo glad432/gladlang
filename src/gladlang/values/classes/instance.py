@@ -48,9 +48,10 @@ class Instance(Value):
         if visibility == "PROTECTED":
             allowed = False
             if context and context.active_class:
-                if defining_class in context.active_class.mro:
-                    allowed = True
-                elif context.active_class in self.class_ref.mro:
+                if (
+                    defining_class in context.active_class.mro
+                    or context.active_class in defining_class.mro
+                ):
                     allowed = True
 
             if not allowed:
@@ -144,10 +145,11 @@ class Instance(Value):
             if member.visibility == "PROTECTED":
                 defining = getattr(member, "defining_class", None)
                 allowed = False
-                if context and context.active_class:
-                    if defining and defining in context.active_class.mro:
-                        allowed = True
-                    elif context.active_class in self.class_ref.mro:
+                if context and context.active_class and defining:
+                    if (
+                        defining in context.active_class.mro
+                        or context.active_class in defining.mro
+                    ):
                         allowed = True
 
                 if not allowed:
@@ -222,7 +224,10 @@ class Instance(Value):
 
         if self.symbol_table.get(name):
             current_vis = self.symbol_table.get_visibility(name)
-            error = self.check_access(name_tok, current_vis, self.class_ref, context)
+            defining_class = self.symbol_table.defining_classes.get(name)
+            if defining_class is None:
+                defining_class = self.class_ref
+            error = self.check_access(name_tok, current_vis, defining_class, context)
             if error:
                 return None, error
 

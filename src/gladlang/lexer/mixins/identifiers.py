@@ -10,9 +10,11 @@ class LexerIdentifiers:
         id_str = ""
         pos_start = self.pos.copy()
 
-        while (
-            self.current_char is not None
-            and (id_str + self.current_char).isidentifier()
+        while self.current_char is not None and (
+            id_str == ""
+            and self.current_char.isidentifier()
+            or id_str != ""
+            and ("a" + self.current_char).isidentifier()
         ):
             id_str += self.current_char
             self.advance()

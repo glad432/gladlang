@@ -51,7 +51,7 @@ LET flags = 5  # 101
 LET MASK = 2   # 010
 # (flags & MASK) == MASK  ->  (5 & 2) == 2  ->  0 == 2   -> FALSE  (correct, & binds tighter)
 # flags & (MASK == MASK)  ->  5 & (2 == 2)  ->  5 & TRUE  -> TRUE   (would be wrong)
-LET bitwise_binds_tighter = (flags & MASK == MASK) == FALSE
+LET bitwise_binds_tighter = (flags & MASK == MASK) == 0
 IF bitwise_binds_tighter THEN
     PRINTLN "PASS: & binds tighter than == (verified, not coincidental)"
 ELSE

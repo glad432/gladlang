@@ -137,14 +137,21 @@ class InterpreterStatements:
         elif isinstance(iterable_val, Dict):
             keys = []
             for k in iterable_val.elements.keys():
-                if isinstance(k, (int, float)):
-                    keys.append(
-                        Number(k).set_context(context).set_pos(pos_start, pos_end)
-                    )
+                if (
+                    isinstance(k, tuple)
+                    and len(k) == 2
+                    and k[0] in ("__null__", "__false__")
+                ):
+                    if k[0] == "__null__":
+                        key_val = Number.null.copy()
+                    else:
+                        key_val = (Number.true if k[1] else Number.false).copy()
+                elif isinstance(k, (int, float)):
+                    key_val = Number(k)
                 else:
-                    keys.append(
-                        String(k).set_context(context).set_pos(pos_start, pos_end)
-                    )
+                    key_val = String(k)
+
+                keys.append(key_val.set_context(context).set_pos(pos_start, pos_end))
             return keys, None
 
         return None, RTError(
@@ -171,9 +178,8 @@ class InterpreterStatements:
         if error:
             return res.failure(error)
 
-        loop_context = Context("FOR", context, node.pos_start)
-
         for element in iterator:
+            loop_context = Context("FOR", context, node.pos_start)
             loop_context.symbol_table = SymbolTable(context.symbol_table)
             self.unpack_and_set(node.var_name_toks, element, loop_context, res)
             if res.error:
@@ -199,9 +205,8 @@ class InterpreterStatements:
     def visit_WhileNode(self, node, context):
         res = RTResult()
 
-        loop_context = Context("WHILE", context, node.pos_start)
-
         while True:
+            loop_context = Context("WHILE", context, node.pos_start)
             loop_context.symbol_table = SymbolTable(context.symbol_table)
             condition_value = res.register(
                 self.visit(node.condition_node, loop_context)
@@ -255,12 +260,17 @@ class InterpreterStatements:
                     break
 
             iter_context = Context("C_FOR", context, node.pos_start)
-            iter_context.symbol_table = SymbolTable(loop_context.symbol_table)
+            iter_symbol_table = loop_context.symbol_table.copy()
+            iter_context.symbol_table = iter_symbol_table
             iter_context.active_class = context.active_class
 
             res.register(self.visit(node.body_node, iter_context))
             if res.error:
                 return res
+
+            for key, value in iter_symbol_table.symbols.items():
+                if key in loop_context.symbol_table.symbols:
+                    loop_context.symbol_table.symbols[key] = value
 
             if res.should_continue:
                 res.should_continue = False
@@ -340,16 +350,15 @@ class InterpreterStatements:
                 catch_result = self.visit(node.catch_body_node, catch_context)
                 if catch_result.error:
                     saved_error = catch_result.error
-
-                if catch_result.should_return:
+                elif catch_result.should_return:
                     saved_should_return = True
                     saved_return = catch_result.return_value
-
-                if catch_result.should_break:
+                elif catch_result.should_break:
                     saved_break = True
-
-                if catch_result.should_continue:
+                elif catch_result.should_continue:
                     saved_continue = True
+                else:
+                    saved_value = catch_result.value
 
             else:
                 saved_error = try_res.error
