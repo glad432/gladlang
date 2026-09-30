@@ -5,7 +5,7 @@ from gladlang.core.errors import InvalidSyntaxError
 
 
 class ParserFunctionArguments:
-    def _parse_function_arguments(self, result):
+    def _parse_function_arguments(self, result, open_parentheses_position):
         argument_tokens = []
 
         if self.current_token.type != GL_RPAREN:
@@ -50,7 +50,7 @@ class ParserFunctionArguments:
         if self.current_token.type != GL_RPAREN:
             result.failure(
                 InvalidSyntaxError(
-                    self.current_token.position_start,
+                    open_parentheses_position,
                     self.current_token.position_end,
                     "Expected ',' or ')'",
                 )

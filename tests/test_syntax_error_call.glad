@@ -1,0 +1,2 @@
+DEF f(a) RETURN a ENDDEF
+LET z = f(1

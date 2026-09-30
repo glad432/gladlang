@@ -3,6 +3,9 @@
 from .function_definition_node import FunctionDefinitionNode
 from .class_node import ClassNode
 from .enum_node import EnumNode
+from .import_node import ImportNode
+from .export_node import ExportNode
+from .re_export_node import ReExportNode
 from .final_variable_assign_node import FinalVariableAssignNode
 from .visibility_statement_node import VisibilityStatementNode
 
@@ -10,6 +13,9 @@ __all__ = [
     "FunctionDefinitionNode",
     "ClassNode",
     "EnumNode",
+    "ImportNode",
+    "ExportNode",
+    "ReExportNode",
     "FinalVariableAssignNode",
     "VisibilityStatementNode",
 ]

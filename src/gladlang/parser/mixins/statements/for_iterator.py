@@ -6,7 +6,7 @@ from gladlang.parser.ast import ForNode
 
 
 class StatementsForIterator:
-    def _parse_iterator_for(self, result):
+    def _parse_iterator_for(self, result, for_token):
         variable_tokens, variable_result = self.parse_iterator_variables()
         if variable_result and variable_result.error:
             return result.failure(variable_result.error)
@@ -45,7 +45,7 @@ class StatementsForIterator:
         if not self.current_token.matches(GL_KEYWORD, "ENDFOR"):
             return result.failure(
                 InvalidSyntaxError(
-                    self.current_token.position_start,
+                    for_token.position_start,
                     self.current_token.position_end,
                     "Expected 'ENDFOR'",
                 )

@@ -1,0 +1,27 @@
+# ============================================================
+#  Fixture module for tests/test_modules.glad
+#  Exports constants, functions, and a class.
+# ============================================================
+
+EXPORT LET PI = 3.14159
+EXPORT LET E = 2.71828
+
+LET internal_helper = "not exported"
+
+EXPORT DEF add(a, b)
+    RETURN a + b
+ENDDEF
+
+EXPORT DEF multiply(a, b)
+    RETURN a * b
+ENDDEF
+
+EXPORT CLASS Calculator
+    DEF add(a, b)
+        RETURN a + b
+    ENDDEF
+
+    DEF multiply(a, b)
+        RETURN a * b
+    ENDDEF
+ENDCLASS

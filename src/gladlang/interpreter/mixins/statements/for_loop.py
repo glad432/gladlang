@@ -31,7 +31,7 @@ class InterpreterForLoop:
             if result.error:
                 return result
 
-            body_result = result.register(self.visit(node.body_node, for_context))
+            result.register(self.visit(node.body_node, for_context))
             if result.error:
                 return result
 

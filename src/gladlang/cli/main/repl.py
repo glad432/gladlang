@@ -18,7 +18,7 @@ def run_repl():
     sys.stdout.write("Type 'exit' or 'quit' to close the shell.\n")
     sys.stdout.write("--------------------------------------------------\n")
 
-    repl_context = Context("<repl>")
+    repl_context = Context("<repl>", is_repl=True)
     repl_context.symbol_table = get_fresh_global_scope()
 
     buffer = ""

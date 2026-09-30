@@ -14,7 +14,7 @@ from gladlang.core.constants.token_types import (
 
 
 class LexerOperatorsShiftCompare:
-    def _lex_lt(self):
+    def _lex_less_than(self):
         start_position = self.position.copy()
         self.advance()
         if self.current_character == "<":
@@ -40,7 +40,7 @@ class LexerOperatorsShiftCompare:
         else:
             return Token(GL_LT, position_start=start_position)
 
-    def _lex_gt(self):
+    def _lex_greater_than(self):
         start_position = self.position.copy()
         self.advance()
         if self.current_character == ">":

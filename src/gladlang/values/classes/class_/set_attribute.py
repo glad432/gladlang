@@ -73,4 +73,7 @@ class ClassSetAttribute:
 
         target_class._method_cache.clear()
 
+        if target_class is not self:
+            self._method_cache.clear()
+
         return value, None

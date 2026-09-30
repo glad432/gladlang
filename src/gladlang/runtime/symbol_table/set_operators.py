@@ -15,7 +15,6 @@ class SymbolTableSetOperators:
             if as_final:
                 if name not in self.finals:
                     self.finals.add(name)
-                    self._finals_count += 1
 
             if defining_class:
                 self.defining_classes[name] = defining_class
@@ -45,6 +44,5 @@ class SymbolTableSetOperators:
 
             if as_final:
                 self.finals.add(name)
-                self._finals_count += 1
 
             return None

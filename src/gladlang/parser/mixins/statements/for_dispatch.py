@@ -17,11 +17,12 @@ class StatementsForDispatch:
                 )
             )
 
-        start_position = self.current_token.position_start.copy()
+        for_token = self.current_token
+        start_position = for_token.position_start.copy()
         result.register_advancement()
         self.advance()
 
         if self.current_token.type == GL_LPAREN:
-            return self._parse_c_style_for(result, start_position)
+            return self._parse_c_style_for(result, start_position, for_token)
 
-        return self._parse_iterator_for(result)
+        return self._parse_iterator_for(result, for_token)

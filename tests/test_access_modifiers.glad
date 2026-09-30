@@ -35,7 +35,7 @@ PRINTLN "Attempting External Access (Should Fail)..."
 TRY
   PRINTLN pm.secret() 
 CATCH error
-  PRINTLN "CAUGHT ERROR: " + STR(error) # Expected: Cannot access private member 'secret'
+  PRINTLN "CAUGHT ERROR: " + STR(error) # Expected: Cannot access private method 'secret' via Class
 ENDTRY
 
 
@@ -89,7 +89,7 @@ PRINTLN "Attempting External Protected Access (Should Fail)..."
 TRY
   PRINTLN c.family_secret()
 CATCH error
-  PRINTLN "CAUGHT ERROR: " + STR(error) # Expected: Cannot access protected member 'family_secret'
+  PRINTLN "CAUGHT ERROR: " + STR(error) # Expected: Cannot access protected method 'family_secret' via Class
 ENDTRY
 
 PRINTLN "\n--- TEST COMPLETE ---"

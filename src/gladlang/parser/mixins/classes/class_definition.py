@@ -19,6 +19,7 @@ class ParserClassDefinition:
                 )
             )
 
+        class_token = self.current_token
         result.register_advancement()
         self.advance()
 
@@ -46,7 +47,7 @@ class ParserClassDefinition:
         if not self.current_token.matches(GL_KEYWORD, "ENDCLASS"):
             return result.failure(
                 InvalidSyntaxError(
-                    self.current_token.position_start,
+                    class_token.position_start,
                     self.current_token.position_end,
                     "Expected 'ENDCLASS'",
                 )

@@ -61,10 +61,10 @@ class InterpreterBinaryOperatorTable:
             GL_BIT_XOR: lambda left_value, right_value: left_value.bitted_xor_by(
                 right_value
             ),
-            GL_LSHIFT: lambda left_value, right_value: left_value.lshifted_by(
+            GL_LSHIFT: lambda left_value, right_value: left_value.left_shifted_by(
                 right_value
             ),
-            GL_RSHIFT: lambda left_value, right_value: left_value.rshifted_by(
+            GL_RSHIFT: lambda left_value, right_value: left_value.right_shifted_by(
                 right_value
             ),
         }

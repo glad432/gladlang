@@ -54,7 +54,7 @@ class ParserTryExpression:
         if not self.current_token.matches(GL_KEYWORD, "ENDTRY"):
             return result.failure(
                 InvalidSyntaxError(
-                    self.current_token.position_start,
+                    try_start_position,
                     self.current_token.position_end,
                     "Expected 'ENDTRY'",
                 )

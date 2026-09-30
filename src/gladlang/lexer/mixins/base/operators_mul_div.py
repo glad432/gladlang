@@ -14,7 +14,7 @@ from gladlang.core.constants.token_types import (
 
 
 class LexerOperatorsMulDiv:
-    def _lex_mul(self):
+    def _lex_multiply(self):
         start_position = self.position.copy()
         self.advance()
         if self.current_character == "*":
@@ -38,7 +38,7 @@ class LexerOperatorsMulDiv:
         else:
             return Token(GL_MUL, position_start=start_position)
 
-    def _lex_div(self):
+    def _lex_divide(self):
         start_position = self.position.copy()
         self.advance()
         if self.current_character == "/":

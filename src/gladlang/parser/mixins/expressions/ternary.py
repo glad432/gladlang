@@ -14,6 +14,7 @@ class ExpressionsTernary:
             return result
 
         if self.current_token.type == GL_QMARK:
+            question_token = self.current_token
             result.register_advancement()
             self.advance()
             true_case = result.register(self.expression())
@@ -23,7 +24,7 @@ class ExpressionsTernary:
             if self.current_token.type != GL_COLON:
                 return result.failure(
                     InvalidSyntaxError(
-                        self.current_token.position_start,
+                        question_token.position_start,
                         self.current_token.position_end,
                         "Expected ':' in ternary operator",
                     )

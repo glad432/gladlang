@@ -18,13 +18,13 @@ except ImportError:
 from gladlang.core.util.settings import Settings
 
 
-def start_memory_watchdog(max_mb):
+def start_memory_watchdog(max_megabytes):
     if psutil is None:
         return
 
     def watch():
         process = psutil.Process(os.getpid())
-        memory_limit_bytes = max_mb * 1024 * 1024
+        memory_limit_bytes = max_megabytes * 1024 * 1024
 
         while True:
             if process.memory_info().rss > memory_limit_bytes:
@@ -37,11 +37,11 @@ def start_memory_watchdog(max_mb):
     watchdog_thread.start()
 
 
-def set_memory_limit(max_mb):
+def set_memory_limit(max_megabytes):
     if resource is not None:
         try:
             soft_limit, hard_limit = resource.getrlimit(resource.RLIMIT_AS)
-            limit_bytes = max_mb * 1024 * 1024
+            limit_bytes = max_megabytes * 1024 * 1024
             new_soft_limit = (
                 min(limit_bytes, hard_limit)
                 if hard_limit != resource.RLIM_INFINITY
@@ -52,4 +52,4 @@ def set_memory_limit(max_mb):
         except Exception as exception:
             sys.stderr.write(f"Warning: Could not set memory limit: {exception}\n")
     else:
-        start_memory_watchdog(max_mb)
+        start_memory_watchdog(max_megabytes)

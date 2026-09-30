@@ -71,10 +71,10 @@ class ValueProtocolStubs:
     def bitted_xor_by(self, other):
         return None, self.illegal_operation(other)
 
-    def lshifted_by(self, other):
+    def left_shifted_by(self, other):
         return None, self.illegal_operation(other)
 
-    def rshifted_by(self, other):
+    def right_shifted_by(self, other):
         return None, self.illegal_operation(other)
 
     def bitted_not(self):

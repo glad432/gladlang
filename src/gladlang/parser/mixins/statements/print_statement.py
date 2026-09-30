@@ -28,6 +28,7 @@ class StatementsPrint:
         expressions = []
 
         if self.current_token.type == GL_LPAREN:
+            open_parentheses_position = self.current_token.position_start.copy()
             result.register_advancement()
             self.advance()
 
@@ -48,7 +49,7 @@ class StatementsPrint:
             if self.current_token.type != GL_RPAREN:
                 return result.failure(
                     InvalidSyntaxError(
-                        self.current_token.position_start,
+                        open_parentheses_position,
                         self.current_token.position_end,
                         "Expected ')'",
                     )

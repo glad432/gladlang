@@ -17,9 +17,6 @@ class LexerTokenLoop:
             self.current_character = None
             self.advance()
 
-        if not hasattr(self, "_template_depth"):
-            self._template_depth = 0
-
         tokens = []
         while self.current_character is not None:
             if len(tokens) > Settings.MAX_TOKENS:
@@ -52,21 +49,21 @@ class LexerTokenLoop:
             elif self.current_character == "-":
                 tokens.append(self._lex_minus())
             elif self.current_character == "*":
-                tokens.append(self._lex_mul())
+                tokens.append(self._lex_multiply())
             elif self.current_character == "/":
-                tokens.append(self._lex_div())
+                tokens.append(self._lex_divide())
             elif self.current_character == "%":
-                tokens.append(self._lex_mod())
+                tokens.append(self._lex_modulo())
             elif self.current_character == "&":
-                tokens.append(self._lex_bit_and())
+                tokens.append(self._lex_bitwise_and())
             elif self.current_character == "|":
-                tokens.append(self._lex_bit_or())
+                tokens.append(self._lex_bitwise_or())
             elif self.current_character == "^":
-                tokens.append(self._lex_bit_xor())
+                tokens.append(self._lex_bitwise_xor())
             elif self.current_character == "<":
-                tokens.append(self._lex_lt())
+                tokens.append(self._lex_less_than())
             elif self.current_character == ">":
-                tokens.append(self._lex_gt())
+                tokens.append(self._lex_greater_than())
             elif self.current_character in SIMPLE_CHARACTER_TOKENS:
                 tokens.append(
                     Token(

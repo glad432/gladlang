@@ -31,11 +31,11 @@ def is_pure_call_expression(source):
 
         elif character == ".":
             index += 1
-            match2 = re.match(r"[A-Za-z_][A-Za-z0-9_]*", source[index:])
-            if not match2:
+            member_match = re.match(r"[A-Za-z_][A-Za-z0-9_]*", source[index:])
+            if not member_match:
                 return False
 
-            index += match2.end()
+            index += member_match.end()
         else:
             break
 

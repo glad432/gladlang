@@ -10,6 +10,7 @@ class StatementsIf:
     def _parse_if_statement(self):
         result = ParseResult()
 
+        if_token = self.current_token
         result.register_advancement()
         self.advance()
 
@@ -84,7 +85,7 @@ class StatementsIf:
         if not self.current_token.matches(GL_KEYWORD, "ENDIF"):
             return result.failure(
                 InvalidSyntaxError(
-                    self.current_token.position_start,
+                    if_token.position_start,
                     self.current_token.position_end,
                     "Expected 'ENDIF'",
                 )

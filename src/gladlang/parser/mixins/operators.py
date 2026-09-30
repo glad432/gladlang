@@ -12,12 +12,12 @@ from gladlang.parser.parse_result import ParseResult
 
 
 class ParserOperators:
-    def binary_operator(self, function_a, operators, function_b=None):
-        if function_b is None:
-            function_b = function_a
+    def binary_operator(self, left_parser, operators, right_parser=None):
+        if right_parser is None:
+            right_parser = left_parser
 
         result = ParseResult()
-        left = result.register(function_a())
+        left = result.register(left_parser())
         if result.error:
             return result
 
@@ -35,7 +35,7 @@ class ParserOperators:
             operator_token = self.current_token
             result.register_advancement()
             self.advance()
-            right = result.register(function_b())
+            right = result.register(right_parser())
             if result.error:
                 return result
 
@@ -53,4 +53,4 @@ class ParserOperators:
         return self.binary_operator(self.shift_expression, (GL_BIT_AND,))
 
     def shift_expression(self):
-        return self.binary_operator(self.arith_expression, (GL_LSHIFT, GL_RSHIFT))
+        return self.binary_operator(self.arithmetic_expression, (GL_LSHIFT, GL_RSHIFT))

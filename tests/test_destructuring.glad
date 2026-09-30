@@ -8,7 +8,7 @@ PRINTLN "z: " + z
 PRINTLN "--- Calculating ---"
 LET [a, b] = [x * 2, y / 2]
 PRINTLN "a: " + a  # 20
-PRINTLN "b: " + b  # 10
+PRINTLN "b: " + b  # 10.0  (/ is float division)
 
 PRINTLN "=== Destructuring Loop Test ==="
 

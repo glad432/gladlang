@@ -9,6 +9,7 @@ from gladlang.parser.parse_result import ParseResult
 class ExpressionsCallArguments:
     def _parse_call_arguments(self, callee_node):
         result = ParseResult()
+        open_parentheses_token = self.current_token
         result.register_advancement()
         self.advance()
         arguments = []
@@ -27,7 +28,7 @@ class ExpressionsCallArguments:
         if self.current_token.type != GL_RPAREN:
             return result.failure(
                 InvalidSyntaxError(
-                    self.current_token.position_start,
+                    open_parentheses_token.position_start,
                     self.current_token.position_end,
                     "Expected ',' or ')'",
                 )

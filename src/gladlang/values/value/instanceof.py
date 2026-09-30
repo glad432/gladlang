@@ -10,14 +10,13 @@ class ValueInstanceof:
         from gladlang.values.primitives.number import Number
         from gladlang.values.classes.type_ import Type
         from gladlang.values.classes.class_ import Class
-        from gladlang.values.primitives.number import Number as Num
         from gladlang.values.primitives.string import String
         from gladlang.values.primitives.list import List
         from gladlang.values.primitives.dict import Dict
         from gladlang.values.functions.base_function import BaseFunction
 
         if isinstance(other, Type):
-            if other.name == "Number" and isinstance(self, Num):
+            if other.name == "Number" and isinstance(self, Number):
                 return Number.true.copy(), None
 
             if other.name == "String" and isinstance(self, String):

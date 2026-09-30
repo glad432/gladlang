@@ -7,7 +7,7 @@ from gladlang.core.util.settings import Settings
 class NumberShifts:
     __slots__ = ()
 
-    def lshifted_by(self, other):
+    def left_shifted_by(self, other):
         if hasattr(other, "_is_null") and other._is_null:
             return None, self._illegal(other)
 
@@ -26,15 +26,15 @@ class NumberShifts:
             if shift_amount >= Settings.BITWISE_MAX_SHIFT:
                 return Number(0).set_context(self.context), None
 
-            raw = (int(self.value) << shift_amount) & Settings.BITWISE_MASK
-            if raw & Settings.BITWISE_SIGN_BIT:
-                raw -= Settings.BITWISE_COMPLEMENT
+            raw_value = (int(self.value) << shift_amount) & Settings.BITWISE_MASK
+            if raw_value & Settings.BITWISE_SIGN_BIT:
+                raw_value -= Settings.BITWISE_COMPLEMENT
 
-            return Number(raw).set_context(self.context), None
+            return Number(raw_value).set_context(self.context), None
 
         return None, self._illegal(other)
 
-    def rshifted_by(self, other):
+    def right_shifted_by(self, other):
         if hasattr(other, "_is_null") and other._is_null:
             return None, self._illegal(other)
 
@@ -55,8 +55,8 @@ class NumberShifts:
                     self.context
                 ), None
 
-            raw = int(self.value) >> shift_amount
-            masked = raw & Settings.BITWISE_MASK
+            raw_value = int(self.value) >> shift_amount
+            masked = raw_value & Settings.BITWISE_MASK
             result = (
                 masked - Settings.BITWISE_COMPLEMENT
                 if masked & Settings.BITWISE_SIGN_BIT

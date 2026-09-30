@@ -18,6 +18,7 @@ class StatementsWhileLoop:
                 )
             )
 
+        while_token = self.current_token
         result.register_advancement()
         self.advance()
         condition = result.register(self.expression())
@@ -33,7 +34,7 @@ class StatementsWhileLoop:
         if not self.current_token.matches(GL_KEYWORD, "ENDWHILE"):
             return result.failure(
                 InvalidSyntaxError(
-                    self.current_token.position_start,
+                    while_token.position_start,
                     self.current_token.position_end,
                     "Expected 'ENDWHILE'",
                 )

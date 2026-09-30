@@ -23,9 +23,7 @@ class InterpreterWhileLoop:
             if not condition_result.is_true():
                 break
 
-            body_result = result.register(
-                self.visit(while_node.body_node, loop_context)
-            )
+            result.register(self.visit(while_node.body_node, loop_context))
 
             if result.error:
                 return result

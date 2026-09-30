@@ -2,7 +2,7 @@
 
 
 def strip_double_quoted(source):
-    cleaned = []
+    cleaned_characters = []
     index = 0
     length = len(source)
 
@@ -18,7 +18,7 @@ def strip_double_quoted(source):
                 else:
                     index += 1
         else:
-            cleaned.append(source[index])
+            cleaned_characters.append(source[index])
             index += 1
 
-    return "".join(cleaned)
+    return "".join(cleaned_characters)

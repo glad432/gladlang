@@ -15,7 +15,7 @@ class InterpreterJumpStatements:
     def visit_ReturnNode(self, node, context):
         result = RuntimeResult()
 
-        tail_call_function = getattr(context, "_tco_func", None)
+        tail_call_function = getattr(context, "_tail_call_function", None)
         if tail_call_function is not None and isinstance(node.node_to_return, CallNode):
             return_node = node.node_to_return
             function = result.register(self.visit(return_node.node_to_call, context))

@@ -6,6 +6,13 @@ from .for_loop import InterpreterForLoop
 from .jump_statements import InterpreterJumpStatements
 from .loop_iterator import InterpreterLoopIterator
 from .loop_unpack import InterpreterLoopUnpack
+from .module_claim import InterpreterModuleClaim
+from .module_body import InterpreterModuleBody
+from .module_exec import InterpreterModuleExec
+from .module_export import InterpreterModuleExport
+from .module_export_guard import InterpreterModuleExportGuard
+from .module_import import InterpreterModuleImport
+from .module_reexport import InterpreterModuleReExport
 from .print_statement import InterpreterPrintStatement
 from .statement_list import InterpreterStatementList
 from .try_catch import InterpreterTryCatch
@@ -17,6 +24,13 @@ class InterpreterStatements(
     InterpreterStatementList,
     InterpreterConditionals,
     InterpreterLoopUnpack,
+    InterpreterModuleClaim,
+    InterpreterModuleBody,
+    InterpreterModuleExec,
+    InterpreterModuleExport,
+    InterpreterModuleExportGuard,
+    InterpreterModuleImport,
+    InterpreterModuleReExport,
     InterpreterLoopIterator,
     InterpreterForLoop,
     InterpreterWhileLoop,

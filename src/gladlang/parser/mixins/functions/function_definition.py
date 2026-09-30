@@ -19,6 +19,7 @@ class ParserFunctionDefinition:
                 )
             )
 
+        def_token = self.current_token
         result.register_advancement()
         self.advance()
 
@@ -26,10 +27,13 @@ class ParserFunctionDefinition:
         if result.error:
             return result
 
+        open_parentheses_token = self.current_token
         result.register_advancement()
         self.advance()
 
-        argument_tokens = self._parse_function_arguments(result)
+        argument_tokens = self._parse_function_arguments(
+            result, open_parentheses_token.position_start
+        )
         if result.error:
             return result
 
@@ -51,7 +55,7 @@ class ParserFunctionDefinition:
         if not self.current_token.matches(GL_KEYWORD, "ENDDEF"):
             return result.failure(
                 InvalidSyntaxError(
-                    self.current_token.position_start,
+                    def_token.position_start,
                     self.current_token.position_end,
                     "Expected 'ENDDEF'",
                 )

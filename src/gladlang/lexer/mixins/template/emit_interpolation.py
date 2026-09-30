@@ -11,7 +11,7 @@ from gladlang.core.constants.token_types import (
 
 
 class LexerEmitInterpolation:
-    def _emit_interpolation(self, tokens, text_part, start_position, _depth):
+    def _emit_interpolation(self, tokens, text_part, start_position, _nesting_depth):
         tokens.append(
             Token(
                 GL_STRING,
@@ -31,7 +31,7 @@ class LexerEmitInterpolation:
         expression_text = self._scan_interpolation_expression()
 
         inner_tokens, error = self._lex_interpolation_expression(
-            expression_text, _depth
+            expression_text, _nesting_depth
         )
 
         if error:

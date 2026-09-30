@@ -38,14 +38,6 @@ class InterpreterDispatch:
                 )
             )
 
-        if isinstance(result, RuntimeResult) and (
-            result.should_return
-            or result.should_break
-            or result.should_continue
-            or result.error
-        ):
-            return result
-
         return result
 
     def no_visit_method(self, node, context):

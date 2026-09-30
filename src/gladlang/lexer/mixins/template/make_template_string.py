@@ -7,8 +7,11 @@ from gladlang.core.constants.token_types import GL_LPAREN, GL_RPAREN, GL_STRING
 
 
 class LexerMakeTemplateString:
-    def make_template_string(self, _depth=0):
-        if _depth >= Settings.MAX_TEMPLATE_DEPTH:
+    def make_template_string(self, _nesting_depth=None):
+        if _nesting_depth is None:
+            _nesting_depth = getattr(self, "_template_nesting_depth", 0)
+
+        if _nesting_depth >= Settings.MAX_TEMPLATE_DEPTH:
             return [], InvalidSyntaxError(
                 self.position.copy(),
                 self.position.copy(),
@@ -32,7 +35,7 @@ class LexerMakeTemplateString:
                 literal_buffer = []
 
                 error = self._emit_interpolation(
-                    tokens, text_part, start_position, _depth
+                    tokens, text_part, start_position, _nesting_depth
                 )
 
                 if error:

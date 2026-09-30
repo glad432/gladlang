@@ -200,17 +200,17 @@ ENDTRY
 
 # RANDOM_RANGE with huge range (exceeds MAX_INT_BITS)
 TRY
-    LET huge = 2 ** 200000  # exceeds MAX_INT_BITS (100000)
+    LET huge = (2 ** 500) ** 200
     RANDOM_RANGE(0, huge)
     PRINTLN "FAIL: should have caught bit-limit"
 CATCH e
     PRINTLN "Caught expected error (range too large): ", e
 ENDTRY
 
-# PRINTF output size cap (uses 11 million chars, which exceeds MAX_STRING_SIZE = 10,000,000)
+# PRINTF output size cap (uses 6 million chars)
 TRY
-    LET huge_str = "a" * 11000000
-    PRINTF("%s", huge_str)
+    LET huge_str = "a" * 6000000
+    PRINTF("%s%s", huge_str, huge_str)
     PRINTLN "FAIL: should have caught output size"
 CATCH e
     PRINTLN "Caught expected error (output size cap): ", e

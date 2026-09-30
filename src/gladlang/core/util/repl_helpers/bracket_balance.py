@@ -51,6 +51,7 @@ def brackets_and_keywords_balanced(stripped_text):
             matched_keyword = match_keyword_at(
                 stripped_text, index, length, NEUTRAL_KEYS
             )
+
             if matched_keyword:
                 after_keyword = index + len(matched_keyword)
                 while after_keyword < length and stripped_text[after_keyword] == " ":

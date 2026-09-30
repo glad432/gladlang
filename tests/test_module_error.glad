@@ -1,0 +1,6 @@
+PRINTLN "--- Module Import Error Tester ---"
+
+PRINTLN "Attempting to import an unexported name..."
+IMPORT internal_helper FROM "./modules/math_module.glad" # This line should crash, not exported
+
+PRINTLN "This line should NOT be printed."

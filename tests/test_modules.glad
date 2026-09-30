@@ -1,0 +1,68 @@
+# ============================================================
+#  Complete test suite for the module system (IMPORT/EXPORT)
+#  Named imports, aliasing, namespace imports, exported classes,
+#  and circular imports.
+# ============================================================
+
+PRINTLN "============================================"
+PRINTLN "  Testing Module System"
+PRINTLN "============================================"
+PRINTLN ""
+
+PRINTLN "--- 1. Named imports ---"
+IMPORT PI, add, multiply, Calculator FROM "./modules/math_module.glad"
+PRINTLN "PI = " + PI
+PRINTLN "add(10, 5) = " + add(10, 5)
+PRINTLN "multiply(3, 4) = " + multiply(3, 4)
+PRINTLN ""
+
+PRINTLN "--- 2. Exported class ---"
+LET calc = NEW Calculator()
+PRINTLN "calc.add(2, 3) = " + calc.add(2, 3)
+PRINTLN "calc.multiply(6, 7) = " + calc.multiply(6, 7)
+PRINTLN ""
+
+PRINTLN "--- 3. Aliased import ---"
+IMPORT E AS Euler FROM "./modules/math_module.glad"
+PRINTLN "Euler (E) = " + Euler
+PRINTLN ""
+
+PRINTLN "--- 4. Namespace import ---"
+IMPORT * AS math FROM "./modules/math_module.glad"
+PRINTLN "math.PI = " + math.PI
+PRINTLN "math.add(100, 200) = " + math.add(100, 200)
+PRINTLN ""
+
+PRINTLN "--- 5. Repeated import is served from cache ---"
+IMPORT PI AS PI2 FROM "./modules/math_module.glad"
+PRINTLN "PI2 = " + PI2
+PRINTLN ""
+
+PRINTLN "--- 6. Circular imports ---"
+IMPORT call_b, get_a_name FROM "./modules/circular_a.glad"
+IMPORT call_a, get_b_name FROM "./modules/circular_b.glad"
+PRINTLN "get_a_name() = " + get_a_name()
+PRINTLN "get_b_name() = " + get_b_name()
+PRINTLN "call_b() = " + call_b()
+PRINTLN "call_a() = " + call_a()
+PRINTLN ""
+
+PRINTLN "--- 7. EXPORT ... AS alias ---"
+IMPORT PI AS AliasedPI, add AS aliasedAdd, Calculator AS AliasedCalculator, plain FROM "./modules/export_alias_module.glad"
+PRINTLN "AliasedPI = " + AliasedPI
+PRINTLN "aliasedAdd(2, 3) = " + aliasedAdd(2, 3)
+LET calc2 = NEW AliasedCalculator()
+PRINTLN "calc2.add(4, 5) = " + calc2.add(4, 5)
+PRINTLN "plain = " + plain
+PRINTLN ""
+
+PRINTLN "--- 8. Standalone re-export (EXPORT name [AS alias]) ---"
+IMPORT greeting, shout, already_public FROM "./modules/reexport_module.glad"
+PRINTLN "greeting = " + greeting
+PRINTLN "shout(\"hi\") = " + shout("hi")
+PRINTLN "already_public = " + already_public
+PRINTLN ""
+
+PRINTLN "============================================"
+PRINTLN " ALL MODULE TESTS COMPLETED SUCCESSFULLY "
+PRINTLN "============================================"

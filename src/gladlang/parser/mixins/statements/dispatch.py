@@ -40,6 +40,12 @@ class StatementsDispatch:
         if self.current_token.matches(GL_KEYWORD, "LET"):
             return self._parse_let_statement()
 
+        if self.current_token.matches(GL_KEYWORD, "IMPORT"):
+            return self._parse_import_statement()
+
+        if self.current_token.matches(GL_KEYWORD, "EXPORT"):
+            return self._parse_export_statement()
+
         if self.current_token.matches(GL_KEYWORD, "RETURN"):
             return self._parse_return_statement()
 
@@ -59,10 +65,11 @@ class StatementsDispatch:
             return self._parse_throw_statement()
 
         if self.current_token.matches(GL_KEYWORD, "SWITCH"):
+            switch_token = self.current_token
             result.register_advancement()
             self.advance()
 
-            return self.switch_expression()
+            return self.switch_expression(switch_token)
 
         expression = result.register(self.expression())
         if result.error:

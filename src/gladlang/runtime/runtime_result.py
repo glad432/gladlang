@@ -12,17 +12,12 @@ class RuntimeResult:
     )
 
     def __init__(self):
-        self.reset()
-
-    def reset(self):
         self.value = None
         self.error = None
         self.return_value = None
         self.should_return = False
         self.should_break = False
         self.should_continue = False
-
-        return self
 
     def register(self, inner_result):
         if inner_result.error is None and not (

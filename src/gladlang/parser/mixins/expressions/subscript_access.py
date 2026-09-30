@@ -9,6 +9,7 @@ from gladlang.parser.parse_result import ParseResult
 class ExpressionsSubscriptAccess:
     def _parse_subscript_access(self, base_node):
         result = ParseResult()
+        open_bracket_token = self.current_token
         result.register_advancement()
         self.advance()
         start_node = None
@@ -29,7 +30,7 @@ class ExpressionsSubscriptAccess:
             if self.current_token.type != GL_RSQUARE:
                 return result.failure(
                     InvalidSyntaxError(
-                        self.current_token.position_start,
+                        open_bracket_token.position_start,
                         self.current_token.position_end,
                         "Expected ']'",
                     )
@@ -42,7 +43,7 @@ class ExpressionsSubscriptAccess:
             if start_node is None:
                 return result.failure(
                     InvalidSyntaxError(
-                        self.current_token.position_start,
+                        open_bracket_token.position_start,
                         self.current_token.position_end,
                         "Expected expression before ']'",
                     )
@@ -51,7 +52,7 @@ class ExpressionsSubscriptAccess:
             if self.current_token.type != GL_RSQUARE:
                 return result.failure(
                     InvalidSyntaxError(
-                        self.current_token.position_start,
+                        open_bracket_token.position_start,
                         self.current_token.position_end,
                         "Expected ']'",
                     )

@@ -52,6 +52,6 @@ class BoundMethodSetupCallContext:
                 ),
             )
 
-        new_context._tco_func = current_function
+        new_context._tail_call_function = current_function
 
         return new_context, base_depth, None

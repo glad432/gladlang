@@ -1,0 +1,18 @@
+# ============================================================
+#  Circular-import fixture: B imports A, A imports B.
+#  See circular_a.glad for the ordering rule this relies on.
+# ============================================================
+
+PRINTLN "Loading circular_b.glad"
+
+EXPORT LET name = "Module B"
+
+EXPORT DEF get_b_name()
+    RETURN name
+ENDDEF
+
+IMPORT get_a_name FROM "./circular_a.glad"
+
+EXPORT DEF call_a()
+    RETURN get_a_name()
+ENDDEF

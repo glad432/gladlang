@@ -17,6 +17,7 @@ from .classes.instance_ import Instance
 from .classes.super_ import Super
 from .classes.type_ import Type
 from .enums.enum import Enum
+from .module import Module
 
 Number.false = FrozenNull(0, is_null=False)
 Number.true = FrozenNull(1, is_null=False)
@@ -41,4 +42,5 @@ __all__ = [
     "Super",
     "Type",
     "Enum",
+    "Module",
 ]

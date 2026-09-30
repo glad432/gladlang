@@ -25,10 +25,15 @@ EXPECTED_FAILURES = {
     "test_attr_error.glad",
     "test_call_error.glad",
     "test_casting.glad",
+    "test_module_error.glad",
+    "test_module_export_error.glad",
     "test_name_error.glad",
     "test_recursion.glad",
     "test_runtime_error.glad",
     "test_syntax_error.glad",
+    "test_syntax_error_paren.glad",
+    "test_syntax_error_bracket.glad",
+    "test_syntax_error_call.glad",
     "test_try_catch.glad",
 }
 

@@ -45,4 +45,8 @@ KEYWORDS = [
     "SUPER",
     "ENUM",
     "ENDENUM",
+    "IMPORT",
+    "EXPORT",
+    "FROM",
+    "AS",
 ]

@@ -19,32 +19,32 @@ from gladlang.parser.parse_result import ParseResult
 class ExpressionsAtom:
     def atom(self):
         result = ParseResult()
-        current_tokenen = self.current_token
+        current_token = self.current_token
 
-        if current_tokenen.type == GL_LBRACE:
+        if current_token.type == GL_LBRACE:
             return self.dict_expression()
 
-        if current_tokenen.type in (GL_INT, GL_FLOAT):
+        if current_token.type in (GL_INT, GL_FLOAT):
             result.register_advancement()
             self.advance()
-            return result.success(NumberNode(current_tokenen))
-        elif current_tokenen.type == GL_STRING:
+            return result.success(NumberNode(current_token))
+        elif current_token.type == GL_STRING:
             result.register_advancement()
             self.advance()
-            return result.success(StringNode(current_tokenen))
-        elif current_tokenen.type == GL_IDENTIFIER:
+            return result.success(StringNode(current_token))
+        elif current_token.type == GL_IDENTIFIER:
             result.register_advancement()
             self.advance()
-            return result.success(VariableAccessNode(current_tokenen))
-        elif current_tokenen.matches(GL_KEYWORD, "THIS"):
+            return result.success(VariableAccessNode(current_token))
+        elif current_token.matches(GL_KEYWORD, "THIS"):
             result.register_advancement()
             self.advance()
-            return result.success(VariableAccessNode(current_tokenen))
-        elif current_tokenen.matches(GL_KEYWORD, "SUPER"):
+            return result.success(VariableAccessNode(current_token))
+        elif current_token.matches(GL_KEYWORD, "SUPER"):
             result.register_advancement()
             self.advance()
-            return result.success(VariableAccessNode(current_tokenen))
-        elif current_tokenen.type == GL_LPAREN:
+            return result.success(VariableAccessNode(current_token))
+        elif current_token.type == GL_LPAREN:
             result.register_advancement()
             self.advance()
             expression = result.register(self.expression())
@@ -58,24 +58,24 @@ class ExpressionsAtom:
             else:
                 return result.failure(
                     InvalidSyntaxError(
-                        self.current_token.position_start,
+                        current_token.position_start,
                         self.current_token.position_end,
                         "Expected ')'",
                     )
                 )
-        elif current_tokenen.type == GL_LSQUARE:
+        elif current_token.type == GL_LSQUARE:
             return self.list_expression()
-        elif current_tokenen.matches(GL_KEYWORD, "DEF"):
+        elif current_token.matches(GL_KEYWORD, "DEF"):
             return self.function_definition()
-        elif current_tokenen.matches(GL_KEYWORD, "CLASS"):
+        elif current_token.matches(GL_KEYWORD, "CLASS"):
             return self.class_definition()
-        elif current_tokenen.matches(GL_KEYWORD, "NEW"):
+        elif current_token.matches(GL_KEYWORD, "NEW"):
             return self.new_instance()
 
         return result.failure(
             InvalidSyntaxError(
-                current_tokenen.position_start,
-                current_tokenen.position_end,
+                current_token.position_start,
+                current_token.position_end,
                 "Expected int, float, string, identifier, '+', '-', '++', '--', '(', '[', 'DEF', 'CLASS', or 'NEW'",
             )
         )

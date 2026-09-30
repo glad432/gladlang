@@ -61,10 +61,6 @@ class InstanceCore(Value):
                     self.symbol_table.defining_classes[name]
                 )
 
-        instance_copy.symbol_table._finals_count = len(
-            instance_copy.symbol_table.finals
-        )
-
         instance_copy.set_context(self.context)
         instance_copy.set_position(self.position_start, self.position_end)
         return instance_copy

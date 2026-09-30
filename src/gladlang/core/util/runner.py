@@ -1,5 +1,7 @@
 """Interpreter runner – orchestrates lexing, parsing, and execution in one call."""
 
+import os
+
 from gladlang.core.errors import InvalidSyntaxError
 from gladlang.core.util.global_scope import get_fresh_global_scope
 from gladlang.core.util.source_detach import detach_source_from_node
@@ -9,7 +11,7 @@ from gladlang.parser.parser import Parser
 from gladlang.runtime.context import Context
 
 
-def run(filename, text, context=None, instruction_limit=None):
+def run(filename, text, context=None, instruction_limit=None, module_root=None):
     lexer = Lexer(filename, text)
 
     tokens, error = lexer.make_tokens()
@@ -36,7 +38,16 @@ def run(filename, text, context=None, instruction_limit=None):
     if ast.node:
         detach_source_from_node(ast.node)
 
-    interpreter = Interpreter(instruction_limit=instruction_limit)
+    if module_root is None:
+        module_root = (
+            os.path.dirname(filename)
+            if filename and os.path.isabs(filename)
+            else os.getcwd()
+        )
+
+    interpreter = Interpreter(
+        instruction_limit=instruction_limit, module_root=module_root
+    )
 
     if context is None:
         context = Context("<program>")

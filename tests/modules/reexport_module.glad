@@ -1,0 +1,16 @@
+# ============================================================
+#  Fixture module for tests/test_modules.glad
+#  Declares plain (non-exported) bindings, then re-exports some
+#  of them afterward via the standalone EXPORT statement.
+# ============================================================
+
+LET internal_greeting = "hello"
+
+DEF internal_shout(text)
+    RETURN text + "!!!"
+ENDDEF
+
+LET already_public = "no alias needed"
+
+EXPORT internal_greeting AS greeting
+EXPORT internal_shout AS shout, already_public

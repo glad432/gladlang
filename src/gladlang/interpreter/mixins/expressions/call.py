@@ -13,10 +13,11 @@ class InterpreterCall:
         if result.error:
             return result
 
-        callee = callee.set_position(node.position_start, node.position_end)
         if callee.context is None or isinstance(callee, Class):
             callee = callee.copy()
             callee.set_context(context)
+
+        callee = callee.set_position(node.position_start, node.position_end)
 
         for argument_node in node.argument_nodes:
             arguments.append(result.register(self.visit(argument_node, context)))

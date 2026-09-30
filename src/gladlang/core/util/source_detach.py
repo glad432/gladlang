@@ -30,14 +30,14 @@ def detach_source_from_node(node, visited=None):
         node.position_end.detach_source()
 
     try:
-        items = vars(node).items()
+        node_attributes = vars(node).items()
     except TypeError:
-        items = []
+        node_attributes = []
         for name in dir(node):
             if name.startswith("__") or callable(getattr(node, name)):
                 continue
 
-            items.append((name, getattr(node, name)))
+            node_attributes.append((name, getattr(node, name)))
 
-    for _, value in items:
+    for _, value in node_attributes:
         detach_value(value)

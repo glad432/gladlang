@@ -6,7 +6,8 @@ from gladlang.parser.ast import CForNode
 
 
 class StatementsForCStyle:
-    def _parse_c_style_for(self, result, start_position):
+    def _parse_c_style_for(self, result, start_position, for_token):
+        open_parentheses_position = self.current_token.position_start.copy()
         result.register_advancement()
         self.advance()
         init_node = None
@@ -52,7 +53,7 @@ class StatementsForCStyle:
         if self.current_token.type != GL_RPAREN:
             return result.failure(
                 InvalidSyntaxError(
-                    self.current_token.position_start,
+                    open_parentheses_position,
                     self.current_token.position_end,
                     "Expected ')'",
                 )
@@ -69,7 +70,7 @@ class StatementsForCStyle:
         if not self.current_token.matches(GL_KEYWORD, "ENDFOR"):
             return result.failure(
                 InvalidSyntaxError(
-                    self.current_token.position_start,
+                    for_token.position_start,
                     self.current_token.position_end,
                     "Expected 'ENDFOR'",
                 )

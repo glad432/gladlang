@@ -25,6 +25,7 @@ class ParserEnums:
                 )
             )
 
+        enum_token = self.current_token
         result.register_advancement()
         self.advance()
 
@@ -76,7 +77,7 @@ class ParserEnums:
         if not self.current_token.matches(GL_KEYWORD, "ENDENUM"):
             return result.failure(
                 InvalidSyntaxError(
-                    self.current_token.position_start,
+                    enum_token.position_start,
                     self.current_token.position_end,
                     "Expected 'ENDENUM'",
                 )

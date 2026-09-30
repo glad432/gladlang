@@ -34,11 +34,11 @@ class NumberBitwise:
         from gladlang.values.primitives.number import Number
 
         if isinstance(other, Number):
-            raw = (int(self.value) & int(other.value)) & Settings.BITWISE_MASK
-            if raw & Settings.BITWISE_SIGN_BIT:
-                raw -= Settings.BITWISE_COMPLEMENT
+            raw_value = (int(self.value) & int(other.value)) & Settings.BITWISE_MASK
+            if raw_value & Settings.BITWISE_SIGN_BIT:
+                raw_value -= Settings.BITWISE_COMPLEMENT
 
-            return Number(raw).set_context(self.context), None
+            return Number(raw_value).set_context(self.context), None
 
         return None, self._illegal(other)
 
@@ -49,11 +49,11 @@ class NumberBitwise:
         from gladlang.values.primitives.number import Number
 
         if isinstance(other, Number):
-            raw = (int(self.value) | int(other.value)) & Settings.BITWISE_MASK
-            if raw & Settings.BITWISE_SIGN_BIT:
-                raw -= Settings.BITWISE_COMPLEMENT
+            raw_value = (int(self.value) | int(other.value)) & Settings.BITWISE_MASK
+            if raw_value & Settings.BITWISE_SIGN_BIT:
+                raw_value -= Settings.BITWISE_COMPLEMENT
 
-            return Number(raw).set_context(self.context), None
+            return Number(raw_value).set_context(self.context), None
 
         return None, self._illegal(other)
 
@@ -64,19 +64,19 @@ class NumberBitwise:
         from gladlang.values.primitives.number import Number
 
         if isinstance(other, Number):
-            raw = (int(self.value) ^ int(other.value)) & Settings.BITWISE_MASK
-            if raw & Settings.BITWISE_SIGN_BIT:
-                raw -= Settings.BITWISE_COMPLEMENT
+            raw_value = (int(self.value) ^ int(other.value)) & Settings.BITWISE_MASK
+            if raw_value & Settings.BITWISE_SIGN_BIT:
+                raw_value -= Settings.BITWISE_COMPLEMENT
 
-            return Number(raw).set_context(self.context), None
+            return Number(raw_value).set_context(self.context), None
 
         return None, self._illegal(other)
 
     def bitted_not(self):
         from gladlang.values.primitives.number import Number
 
-        raw = (~int(self.value)) & Settings.BITWISE_MASK
-        if raw & Settings.BITWISE_SIGN_BIT:
-            raw -= Settings.BITWISE_COMPLEMENT
+        raw_value = (~int(self.value)) & Settings.BITWISE_MASK
+        if raw_value & Settings.BITWISE_SIGN_BIT:
+            raw_value -= Settings.BITWISE_COMPLEMENT
 
-        return Number(raw).set_context(self.context), None
+        return Number(raw_value).set_context(self.context), None

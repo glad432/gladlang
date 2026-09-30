@@ -23,7 +23,7 @@ from gladlang.parser.parse_result import ParseResult
 
 
 class ExpressionsArithmetic:
-    def arith_expression(self):
+    def arithmetic_expression(self):
         return self.binary_operator(self.term, (GL_PLUS, GL_MINUS))
 
     def term(self):
@@ -31,17 +31,17 @@ class ExpressionsArithmetic:
 
     def factor(self):
         result = ParseResult()
-        current_tokenen = self.current_token
+        current_token = self.current_token
 
-        if current_tokenen.type in (GL_PLUS, GL_MINUS):
+        if current_token.type in (GL_PLUS, GL_MINUS):
             result.register_advancement()
             self.advance()
             factor_value = result.register(self.factor())
             if result.error:
                 return result
 
-            return result.success(UnaryOperatorNode(current_tokenen, factor_value))
-        elif current_tokenen.type in (GL_PLUSPLUS, GL_MINUSMINUS):
+            return result.success(UnaryOperatorNode(current_token, factor_value))
+        elif current_token.type in (GL_PLUSPLUS, GL_MINUSMINUS):
             operator_token = self.current_token
             result.register_advancement()
             self.advance()
@@ -61,14 +61,14 @@ class ExpressionsArithmetic:
                 )
 
             return result.success(UnaryOperatorNode(operator_token, target_node))
-        elif current_tokenen.type == GL_BIT_NOT:
+        elif current_token.type == GL_BIT_NOT:
             result.register_advancement()
             self.advance()
             factor_value = result.register(self.factor())
             if result.error:
                 return result
 
-            return result.success(UnaryOperatorNode(current_tokenen, factor_value))
+            return result.success(UnaryOperatorNode(current_token, factor_value))
 
         return self.power()
 

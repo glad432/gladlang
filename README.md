@@ -55,6 +55,12 @@ This is the full overview of the GladLang language, its features, and how to run
         - [Access Modifiers](#access-modifiers)
         - [Static Members](#static-members)
     - [7. Built-in Functions](#7-built-in-functions)
+    - [8. Modules](#8-modules)
+        - [Exporting](#exporting)
+        - [Importing](#importing)
+        - [Re-Exporting with Aliases](#re-exporting-with-aliases)
+        - [Circular Imports & Caching](#circular-imports--caching)
+        - [Path Rules & Security](#path-rules--security)
 - [Error Handling](#error-handling)
 - [Running Tests](#running-tests)
 - [License](#license)
@@ -932,6 +938,130 @@ PRINTLN Config.increment()    # 1
   * `RANDOM_FLOAT()`: Returns a cryptographically secure float in the range `[0.0, 1.0)`.
   * `RANDOM_RANGE(start, stop)`: Returns a cryptographically secure integer in `[start, stop)` (stop excluded). Requires `start < stop`.
   * `DELAY(seconds)`: Pauses execution for the given number of seconds (capped at 60 seconds for safety). Only finite, non‑negative numbers are accepted.
+
+-----
+
+### 8\. Modules
+
+GladLang scripts can be split across files using `EXPORT` and `IMPORT`.  
+This allows you to organise your code into reusable modules and share functions, constants, and classes between files.
+
+#### Exporting
+
+`EXPORT` marks a top‑level `LET`, `DEF`, or `CLASS` declaration as visible to other files.
+It's only valid at the top level of a file that is itself loaded via `IMPORT` (i.e. not in
+the entry script, and not inside a function, class, loop, or conditional):
+
+```glad
+# math_module.glad
+EXPORT LET PI = 3.14159
+
+EXPORT DEF add(a, b)
+    RETURN a + b
+ENDDEF
+
+EXPORT CLASS Calculator
+    DEF add(a, b)
+        RETURN a + b
+    ENDDEF
+ENDCLASS
+```
+
+An export can also be given a different public name than its local one, via a trailing
+`AS alias`. Because the declaration keyword (`DEF`/`CLASS`) owns everything up through its
+own closing `ENDDEF`/`ENDCLASS`, the alias goes *after* that, not inline with the signature:
+
+```glad
+EXPORT LET internal_pi = 3.14159 AS PI
+
+EXPORT DEF internal_add(a, b)
+    RETURN a + b
+ENDDEF AS add
+```
+
+Only the alias is visible to importers — the original local name (`internal_pi`,
+`internal_add` above) is not itself exported.
+
+#### Importing
+
+`IMPORT` loads a module (by a path relative to the importing file) and binds its exports
+into the current scope. Three forms are supported:
+
+```glad
+# Named imports, optionally comma‑separated
+IMPORT PI, add, Calculator FROM "./math_module.glad"
+
+# Aliased import (AS)
+IMPORT PI AS Pi FROM "./math_module.glad"
+
+# Namespace import: everything under one identifier
+IMPORT * AS math FROM "./math_module.glad"
+PRINTLN math.PI
+PRINTLN math.add(1, 2)
+```
+
+#### Re-Exporting with Aliases
+
+A name can also be declared normally first and exported afterward, via a standalone
+`EXPORT` statement that takes an existing local name rather than a fresh declaration.
+This form is the only way to export a `FINAL` or `ENUM`, and it is the only way to
+give an already-declared name a different public name, using `AS alias`.
+
+Multiple names can be exported in one statement, comma-separated, and each entry can
+carry its own alias or none at all.
+
+```glad
+LET internal_greeting = "hello"
+
+DEF internal_shout(text)
+    RETURN text + "!!!"
+ENDDEF
+
+FINAL internal_max = 100
+
+ENUM InternalStatus
+    ACTIVE
+    INACTIVE
+ENDENUM
+
+# Single alias per statement
+EXPORT internal_greeting AS greeting
+
+# Comma-separated list, each entry with its own alias
+EXPORT internal_shout AS shout, internal_max AS MAX
+
+# Enum re-exported under a shorter public name
+EXPORT InternalStatus AS Status
+```
+
+On the importing side, only the alias is visible — `greeting`, `shout`, `MAX`, `Status`.
+The original local names are not exported.
+
+```glad
+IMPORT greeting, shout, MAX, Status FROM "./greetings.glad"
+
+PRINTLN greeting            # "hello"
+PRINTLN shout("hey")        # "hey!!!"
+PRINTLN MAX                 # 100
+PRINTLN Status.ACTIVE.value # 0
+```
+
+#### Circular Imports & Caching
+
+- Each module is loaded and executed once per run; subsequent imports of the same path are served from an in‑memory cache.
+- Circular imports (A imports B, B imports A) are supported as long as the names each side needs from the other are exported *before* the circular `IMPORT` line runs — see `tests/modules/circular_a.glad` / `circular_b.glad` for a working example.
+
+#### Path Rules & Security
+
+- Import paths must be **relative** (e.g. `"./..."` or `"../..."`), must end in `.glad`, and are resolved against the directory of the file doing the importing.
+- Paths may not escape the project's module root (the entry script's directory, by default). In the REPL or when running via piped stdin (`gladlang < script.glad`), there is no script file path to anchor against, so the module root falls back to the current working directory instead.
+- Use **forward slashes** in import paths on every platform, including Windows — a backslash inside a string literal is parsed as an escape sequence, so `"modules\math.glad"` will not resolve as a path separator.
+- `NEW math.Calculator()` (constructing directly off a namespace import) is **not supported**; import the class by name instead (`IMPORT Calculator FROM ...`) and use `NEW Calculator()`.
+
+**Notes:**
+- `EXPORT` is disabled in the interactive REPL's top‑level prompt (it's still usable inside modules imported from the REPL).
+- Files are read with a size limit (1 MB) and must be valid UTF‑8.
+```
 
 -----
 

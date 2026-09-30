@@ -1,0 +1,19 @@
+# ============================================================
+#  Fixture module for tests/test_modules.glad
+#  Exports names under an alias (EXPORT ... AS alias), and one
+#  plain export with no alias for comparison.
+# ============================================================
+
+EXPORT LET internal_pi = 3.14159 AS PI
+
+EXPORT DEF internal_add(a, b)
+    RETURN a + b
+ENDDEF AS add
+
+EXPORT CLASS InternalCalculator
+    DEF add(a, b)
+        RETURN a + b
+    ENDDEF
+ENDCLASS AS Calculator
+
+EXPORT LET plain = "no alias"

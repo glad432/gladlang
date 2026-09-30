@@ -14,7 +14,7 @@ from gladlang.core.constants.token_types import (
 
 
 class LexerOperatorsModBitwise:
-    def _lex_mod(self):
+    def _lex_modulo(self):
         start_position = self.position.copy()
         self.advance()
         if self.current_character == "=":
@@ -26,7 +26,7 @@ class LexerOperatorsModBitwise:
         else:
             return Token(GL_MOD, position_start=start_position)
 
-    def _lex_bit_and(self):
+    def _lex_bitwise_and(self):
         start_position = self.position.copy()
         self.advance()
         if self.current_character == "=":
@@ -38,7 +38,7 @@ class LexerOperatorsModBitwise:
         else:
             return Token(GL_BIT_AND, position_start=start_position)
 
-    def _lex_bit_or(self):
+    def _lex_bitwise_or(self):
         start_position = self.position.copy()
         self.advance()
         if self.current_character == "=":
@@ -50,7 +50,7 @@ class LexerOperatorsModBitwise:
         else:
             return Token(GL_BIT_OR, position_start=start_position)
 
-    def _lex_bit_xor(self):
+    def _lex_bitwise_xor(self):
         start_position = self.position.copy()
         self.advance()
         if self.current_character == "=":

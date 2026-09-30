@@ -1,0 +1,19 @@
+# ============================================================
+#  Circular-import fixture: A imports B, B imports A.
+#  Exports needed by the other side are declared before the
+#  circular IMPORT statement, so both sides resolve cleanly.
+# ============================================================
+
+PRINTLN "Loading circular_a.glad"
+
+EXPORT LET name = "Module A"
+
+EXPORT DEF get_a_name()
+    RETURN name
+ENDDEF
+
+IMPORT get_b_name FROM "./circular_b.glad"
+
+EXPORT DEF call_b()
+    RETURN get_b_name()
+ENDDEF

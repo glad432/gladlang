@@ -9,6 +9,11 @@ from .if_statement import StatementsIf
 from .let_destructure import StatementsLetDestructure
 from .let_dispatch import StatementsLetDispatch
 from .let_single import StatementsLetSingle
+from .module_import import StatementsModuleImport
+from .module_import_names import StatementsImportNames
+from .module_export import StatementsModuleExport
+from .module_reexport import StatementsReExport
+from .module_reexport_names import StatementsReExportNames
 from .print_statement import StatementsPrint
 from .return_throw import StatementsReturnThrow
 from .visibility import StatementsVisibility
@@ -23,6 +28,11 @@ class ParserStatements(
     StatementsLetDispatch,
     StatementsLetDestructure,
     StatementsLetSingle,
+    StatementsModuleImport,
+    StatementsImportNames,
+    StatementsModuleExport,
+    StatementsReExport,
+    StatementsReExportNames,
     StatementsBreakContinue,
     StatementsReturnThrow,
     StatementsWhileLoop,

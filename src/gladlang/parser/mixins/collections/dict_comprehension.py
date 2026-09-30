@@ -14,7 +14,7 @@ class ParserDictComprehension:
         if self.current_token.type != GL_RBRACE:
             return result.failure(
                 InvalidSyntaxError(
-                    self.current_token.position_start,
+                    start_position,
                     self.current_token.position_end,
                     "Expected '}'",
                 )

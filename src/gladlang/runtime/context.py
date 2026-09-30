@@ -10,10 +10,13 @@ class Context:
         "depth",
         "active_class",
         "is_static",
-        "_tco_func",
+        "_tail_call_function",
+        "is_repl",
     )
 
-    def __init__(self, display_name, parent=None, parent_entry_position=None):
+    def __init__(
+        self, display_name, parent=None, parent_entry_position=None, is_repl=False
+    ):
         self.display_name = display_name
         self.parent = parent
         self.parent_entry_position = parent_entry_position
@@ -21,3 +24,4 @@ class Context:
         self.depth = (parent.depth + 1) if parent else 0
         self.active_class = parent.active_class if parent else None
         self.is_static = parent.is_static if parent else False
+        self.is_repl = is_repl

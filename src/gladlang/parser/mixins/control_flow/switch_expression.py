@@ -7,7 +7,7 @@ from gladlang.parser.parse_result import ParseResult
 
 
 class ParserSwitchExpression:
-    def switch_expression(self):
+    def switch_expression(self, switch_token):
         result = ParseResult()
 
         switch_value = result.register(self.expression())
@@ -60,7 +60,7 @@ class ParserSwitchExpression:
         if not self.current_token.matches(GL_KEYWORD, "ENDSWITCH"):
             return result.failure(
                 InvalidSyntaxError(
-                    self.current_token.position_start,
+                    switch_token.position_start,
                     self.current_token.position_end,
                     "Expected 'ENDSWITCH'",
                 )

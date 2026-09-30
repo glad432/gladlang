@@ -24,7 +24,6 @@ class SymbolTableUpdateRemove:
             self.symbols.pop(name, None)
             if name in self.finals:
                 self.finals.discard(name)
-                self._finals_count = max(0, self._finals_count - 1)
 
             self.visibilities.pop(name, None)
             self.defining_classes.pop(name, None)
